@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VITRVS — strato/strato</title>
+  <meta name="description" content="VITRVS design studio — custom design, layer by layer.">
+
+  <style>
+    @font-face {
+      font-family: 'Cinzel';
+      src: url('Cinzel-VariableFont_wght.ttf') format('truetype');
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ink:   #141210;
+      --paper: #EFECEA;
+      --ease:  cubic-bezier(0.16, 1, 0.3, 1);
+      --dur:   0.95s;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--ink);
+      font-family: 'Cinzel', serif;
+      cursor: none;
+    }
+
+    /* ─── PAPER BACKGROUND ────────────────────────────── */
+    #bg {
+      position: fixed; inset: 0;
+      background: var(--paper);
+      opacity: 0; z-index: 0;
+      transition: opacity 1.9s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ─── LOGO MARK ──────────────────────────────────────
+       Hero  : dark mark, 200px, above centre
+       bg-state: enlarges to centred watermark at opacity 0.10   */
+    #logo-mark {
+      position: fixed;
+      top: 50vh; left: 50vw;
+      width: 200px;
+      transform: translate(-50%, calc(-50% - 60px));
+      z-index: 8; opacity: 1;
+      transition:
+        width     2.2s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity   2.2s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 2.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #logo-mark img { width: 100%; height: auto; display: block; user-select: none; }
+
+    body.bg-state #logo-mark {
+      width: min(540px, 70vh);
+      opacity: 0.10;
+      transform: translate(-50%, -50%);
+    }
+
+    /* ─── VITRVS ─────────────────────────────────────── */
+    #vitrvs-name {
+      position: fixed;
+      top: 50vh; left: 0; right: 0; text-align: center;
+      transform: translateY(calc(-50% + 108px));
+      font-size: 54px; font-weight: 400; letter-spacing: 0.36em;
+      color: var(--ink); z-index: 10;
+      transition:
+        top var(--dur) var(--ease),
+        transform var(--dur) var(--ease),
+        font-size var(--dur) var(--ease),
+        letter-spacing var(--dur) ease;
+    }
+    body.nav-state #vitrvs-name {
+      top: 15px; transform: translateY(0);
+      font-size: 13px; letter-spacing: 0.58em;
+    }
+
+    /* ─── DESIGN STUDIO ──────────────────────────────── */
+    #studio-name {
+      position: fixed;
+      top: 50vh; left: 0; right: 0; text-align: center;
+      transform: translateY(calc(-50% + 158px));
+      font-size: 13px; font-weight: 300; letter-spacing: 0.52em;
+      color: var(--ink); z-index: 10;
+      transition:
+        top var(--dur) var(--ease),
+        transform var(--dur) var(--ease),
+        font-size var(--dur) var(--ease),
+        letter-spacing var(--dur) ease;
+    }
+    body.nav-state #studio-name {
+      top: 35px; transform: translateY(0);
+      font-size: 6.5px; letter-spacing: 0.54em;
+    }
+
+    /* ─── STRATO/STRATO ─────────────────────────────── */
+    #strato-tag {
+      position: fixed;
+      top: 50vh; left: 0; right: 0; text-align: center;
+      transform: translateY(calc(-50% + 205px));
+      font-size: 11px; font-weight: 300; letter-spacing: 0.42em;
+      color: var(--ink); z-index: 10; opacity: 0;
+    }
+
+    /* ─── PRINT NOZZLE ───────────────────────────────── */
+    #print-nozzle {
+      position: fixed; width: 1.5px;
+      background: linear-gradient(to bottom,
+        transparent, var(--ink) 30%, var(--ink) 70%, transparent);
+      opacity: 0; z-index: 12; pointer-events: none;
+    }
+
+    /* ─── NAV LINE — gradient fades well before each edge */
+    #nav-line {
+      position: fixed; top: 58px; left: 0;
+      width: 100%; height: 1px;
+      background: linear-gradient(to right,
+        transparent 0px,
+        var(--ink) 80px,
+        var(--ink) calc(100% - 80px),
+        transparent 100%);
+      opacity: 0; z-index: 5;
+      transform: scaleX(0); transform-origin: left center;
+      transition: opacity 0.6s ease, transform 1s var(--ease);
+    }
+    body.nav-state #nav-line { opacity: 0.1; transform: scaleX(1); }
+
+    /* ─── PAGE CONTENT (manifesto) ─────────────────────── */
+    #content {
+      position: fixed;
+      top: 58px; bottom: 56px; left: 0; right: 0;
+      z-index: 3;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 1.2s ease 0.6s;
+    }
+    body.nav-state #content { opacity: 1; pointer-events: auto; }
+
+    .manifesto { max-width: 520px; text-align: center; }
+
+    .manifesto .lead {
+      display: block;
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 0.26em; line-height: 2.3;
+      color: var(--ink); opacity: 0.72;
+      margin-bottom: 34px;
+    }
+    .manifesto p {
+      font-size: 9px; font-weight: 300;
+      letter-spacing: 0.18em; line-height: 2.5;
+      color: var(--ink); opacity: 0.42;
+    }
+    .manifesto p + p { margin-top: 24px; }
+
+    /* ─── LANGUAGE SWITCHER ─────────────────────────────
+       Fixed top-right, fades in with nav-state             */
+    #lang-switcher {
+      position: fixed; top: 13px; right: 28px;
+      z-index: 20; opacity: 0; pointer-events: none;
+      transition: opacity 1s ease 0.9s;
+      font-family: 'Cinzel', serif;
+      user-select: none;
+    }
+    body.nav-state #lang-switcher { opacity: 1; pointer-events: auto; }
+
+    #lang-btn {
+      background: none; border: none;
+      font-family: 'Cinzel', serif;
+      font-size: 9px; font-weight: 300; letter-spacing: 0.26em;
+      color: var(--ink); opacity: 0.35;
+      padding: 4px 0; cursor: none;
+      display: flex; align-items: center; gap: 5px;
+      transition: opacity 0.25s ease;
+    }
+    #lang-btn:hover { opacity: 0.85; }
+
+    #lang-btn::after {
+      content: '';
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-right: 1px solid currentColor;
+      border-bottom: 1px solid currentColor;
+      transform: rotate(45deg) translateY(-2px);
+      opacity: 0.6;
+      transition: transform 0.2s ease;
+    }
+    #lang-switcher.open #lang-btn::after {
+      transform: rotate(-135deg) translateY(-2px);
+    }
+
+    #lang-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--paper);
+      border: 1px solid rgba(20,18,16,0.09);
+      list-style: none; padding: 6px 0;
+      min-width: 56px;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    #lang-switcher.open #lang-dropdown {
+      opacity: 1; pointer-events: auto; transform: translateY(0);
+    }
+    #lang-dropdown li {
+      font-size: 9px; font-weight: 300; letter-spacing: 0.24em;
+      color: var(--ink); opacity: 0.38;
+      padding: 6px 14px; cursor: none;
+      transition: opacity 0.15s ease;
+    }
+    #lang-dropdown li:hover { opacity: 0.85; }
+    #lang-dropdown li.active { font-weight: 400; opacity: 0.75; }
+
+    /* ─── BOTTOM CORNER LINKS ──────────────────────────── */
+    .corner-link {
+      position: fixed; bottom: 26px;
+      font-family: 'Cinzel', serif;
+      font-size: 9px; font-weight: 300; letter-spacing: 0.24em;
+      color: var(--ink); text-decoration: none;
+      opacity: 0; z-index: 10;
+      transition: opacity 1s ease 0.8s;
+    }
+    #link-email     { left: 28px; }
+    #link-instagram { right: 28px; }
+    body.nav-state .corner-link { opacity: 0.35; }
+    .corner-link:hover { opacity: 0.9 !important; transition: opacity 0.3s ease !important; }
+
+    /* ─── PRINCIPLES — bottom centre ──────────────────── */
+    #principles {
+      position: fixed; bottom: 26px; left: 0; right: 0; text-align: center;
+      font-size: 7px; font-weight: 300; letter-spacing: 0.22em;
+      color: var(--ink); opacity: 0; z-index: 10;
+      pointer-events: none;          /* never intercept corner-link clicks */
+      transition: opacity 1s ease 0.8s;
+    }
+    body.nav-state #principles { opacity: 0.28; }
+
+    /* ─── CURSOR — VITRVS triangle ──────────────────────
+       Apex at mouse hotspot; mix-blend-mode gives inverted
+       colour on any background.                           */
+    #cursor {
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -1px);   /* apex ≈ mouse point */
+      color: var(--paper); mix-blend-mode: difference;
+      line-height: 0;
+    }
+    /* ─── CURSOR LINES — three strato bars trailing the cursor ──
+       Same lag animation as the old ring, but rendered as the
+       three horizontal brand lines from the logo mark.          */
+    #cursor-lines {
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      color: var(--paper); mix-blend-mode: difference;
+    }
+    #cursor-lines span {
+      display: block; height: 1px;
+      background: currentColor;
+      transition: width 0.28s ease, opacity 0.3s ease;
+    }
+    /* default widths: widest at top, tapering down — mirrors the
+       triangle-to-base proportion of the logo mark              */
+    #cursor-lines span:nth-child(1) { width: 20px; opacity: 0.65; }
+    #cursor-lines span:nth-child(2) { width: 15px; opacity: 0.50; }
+    #cursor-lines span:nth-child(3) { width: 10px; opacity: 0.35; }
+
+    /* on link / interactive hover: lines grow and brighten */
+    #cursor-lines.hover span:nth-child(1) { width: 26px; opacity: 0.9; }
+    #cursor-lines.hover span:nth-child(2) { width: 20px; opacity: 0.75; }
+    #cursor-lines.hover span:nth-child(3) { width: 14px; opacity: 0.55; }
+  </style>
+</head>
+<body>
+
+  <!-- Triangle cursor matching the VITRVS logo mark -->
+  <div id="cursor">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         viewBox="-10 -14 166 140"
+         width="15" height="12"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="13"
+         stroke-linejoin="miter"
+         stroke-miterlimit="20"
+         aria-hidden="true">
+      <polyline points="0,120 73,2 146,120"/>
+    </svg>
+  </div>
+  <!-- Three strato lines — lag-follow the cursor -->
+  <div id="cursor-lines">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <div id="bg"></div>
+  <div id="nav-line"></div>
+  <div id="print-nozzle"></div>
+
+  <div id="logo-mark">
+    <img src="VITRVS_mark.png" alt="VITRVS mark" draggable="false">
+  </div>
+
+  <div id="vitrvs-name">VITRVS</div>
+  <div id="studio-name">DESIGN STUDIO</div>
+  <div id="strato-tag">STRATO/STRATO</div>
+
+  <div id="content">
+    <div class="manifesto">
+      <span class="lead" id="manifesto-lead"></span>
+      <p id="manifesto-p1"></p>
+      <p id="manifesto-p2"></p>
+    </div>
+  </div>
+
+  <!-- Language switcher -->
+  <div id="lang-switcher" role="navigation" aria-label="Language">
+    <button id="lang-btn" aria-haspopup="listbox" aria-expanded="false">EN</button>
+    <ul id="lang-dropdown" role="listbox">
+      <li role="option" data-lang="en">EN</li>
+      <li role="option" data-lang="de">DE</li>
+      <li role="option" data-lang="it">IT</li>
+      <li role="option" data-lang="fr">FR</li>
+      <li role="option" data-lang="hu">HU</li>
+    </ul>
+  </div>
+
+  <a href="mailto:hello@vitrvs.design" class="corner-link" id="link-email">hello@vitrvs.design</a>
+  <a href="https://instagram.com/vitrvs.design" target="_blank" rel="noopener"
+     class="corner-link" id="link-instagram">@vitrvs.design</a>
+
+  <div id="principles">FIRMITAS · UTILITAS · VENUSTAS</div>
+
+
+  <script>
+    /* ═══════════════════════════════════════════════════════
+       LOCALISATION
+       ═══════════════════════════════════════════════════════ */
+
+    const LANGS = {
+      en: {
+        label: 'EN',
+        lead:  'Objects shaped by proportion.\nGuided by firmitas, utilitas, venustas.',
+        p1:    'We design contemporary objects rooted in classical principles —\nwhere structure is honest, function is essential,\nand beauty is never decoration, but consequence.',
+        p2:    'From sculptural forms to everyday pieces,\neach creation is built layer by layer —\nstrato per strato.',
+      },
+      de: {
+        label: 'DE',
+        lead:  'Objekte geformt durch Proportion.\nGeleitet von firmitas, utilitas, venustas.',
+        p1:    'Wir entwerfen zeitgenössische Objekte auf klassischen Grundsätzen —\nwo Struktur ehrlich, Funktion wesentlich\nund Schönheit nie Dekoration, sondern Konsequenz ist.',
+        p2:    'Von skulpturalen Formen bis hin zu alltäglichen Stücken,\njedes Werk entsteht Schicht für Schicht —\nstrato per strato.',
+      },
+      it: {
+        label: 'IT',
+        lead:  'Oggetti plasmati dalla proporzione.\nGuidati da firmitas, utilitas, venustas.',
+        p1:    'Progettiamo oggetti contemporanei radicati nei principi classici —\ndove la struttura è onesta, la funzione è essenziale,\ne la bellezza non è mai decorazione, ma conseguenza.',
+        p2:    'Dalle forme scultoree agli oggetti quotidiani,\nogni creazione è costruita strato per strato.',
+      },
+      fr: {
+        label: 'FR',
+        lead:  'Des objets façonnés par la proportion.\nGuidés par firmitas, utilitas, venustas.',
+        p1:    'Nous concevons des objets contemporains ancrés dans les principes classiques —\noù la structure est honnête, la fonction est essentielle,\net la beauté n\'est jamais décoration, mais conséquence.',
+        p2:    'Des formes sculpturales aux pièces du quotidien,\nchaque création est construite couche par couche —\nstrato per strato.',
+      },
+      hu: {
+        label: 'HU',
+        lead:  'Arányok által formált tárgyak.\nVezérelve: firmitas, utilitas, venustas.',
+        p1:    'Kortárs tárgyakat tervezünk klasszikus elvek alapján —\nahol a szerkezet őszinte, a funkció lényeges,\nés a szépség soha nem díszítés, hanem következmény.',
+        p2:    'Szobrászi formáktól a mindennapi tárgyakig,\nminden alkotás rétegről rétegre épül fel —\nstrato per strato.',
+      },
+    };
+
+    /* Country code → language (IP-based) */
+    const COUNTRY_LANG = {
+      HU: 'hu',
+      DE: 'de', AT: 'de', LI: 'de',
+      IT: 'it', SM: 'it', VA: 'it',
+      FR: 'fr', MC: 'fr',
+    };
+
+    /* Browser navigator.language → language code */
+    function browserLang() {
+      const code = (navigator.language || 'en').split('-')[0].toLowerCase();
+      return LANGS[code] ? code : 'en';
+    }
+
+    let currentLang = 'en';
+    let userChose    = false;   // true once visitor manually picks a language
+
+    function br(s) { return s.replace(/\n/g, '<br>'); }
+
+    function applyLang(code) {
+      const l = LANGS[code] || LANGS.en;
+      currentLang = code;
+      document.documentElement.lang = code;
+      document.getElementById('manifesto-lead').innerHTML = br(l.lead);
+      document.getElementById('manifesto-p1').innerHTML   = br(l.p1);
+      document.getElementById('manifesto-p2').innerHTML   = br(l.p2);
+      document.getElementById('lang-btn').textContent     = l.label + '\u00A0'; // keep chevron
+      document.querySelectorAll('#lang-dropdown li').forEach(li => {
+        li.classList.toggle('active', li.dataset.lang === code);
+      });
+      // Re-append the pseudo-element via button text trick:
+      // The ::after chevron is CSS-only, so we only need to set textContent correctly.
+      // However textContent clears the ::after content structure isn't needed in textContent.
+      // Actually ::after is CSS pseudo and always rendered regardless — no action needed here.
+    }
+
+    /* ── IP-based detection ────────────────────────────
+       Uses ipapi.co (free tier, 1k req/day).
+       AbortController gives a 3 s timeout.              */
+    function detectByIP() {
+      if (userChose) return;
+      const ctrl    = new AbortController();
+      const timeout = setTimeout(() => ctrl.abort(), 3000);
+      fetch('https://ipapi.co/json/', { signal: ctrl.signal })
+        .then(r => r.json())
+        .then(data => {
+          clearTimeout(timeout);
+          if (userChose) return;                // visitor already chose manually
+          const lang = COUNTRY_LANG[data.country_code] || 'en';
+          if (lang !== currentLang) applyLang(lang);
+        })
+        .catch(() => { /* silent fail — browser lang already applied */ });
+    }
+
+    /* Apply browser language immediately (zero latency),
+       then refine with IP detection in the background.   */
+    applyLang(browserLang());
+    detectByIP();
+
+    /* ═══════════════════════════════════════════════════════
+       LANGUAGE SWITCHER DROPDOWN
+       ═══════════════════════════════════════════════════════ */
+    const switcher   = document.getElementById('lang-switcher');
+    const langBtn    = document.getElementById('lang-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
+
+    function openDropdown()  { switcher.classList.add('open');    langBtn.setAttribute('aria-expanded', 'true');  }
+    function closeDropdown() { switcher.classList.remove('open'); langBtn.setAttribute('aria-expanded', 'false'); }
+    function toggleDropdown(){ switcher.classList.contains('open') ? closeDropdown() : openDropdown(); }
+
+    langBtn.addEventListener('click', e => { e.stopPropagation(); toggleDropdown(); });
+
+    langDropdown.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', e => {
+        e.stopPropagation();
+        userChose = true;
+        applyLang(li.dataset.lang);
+        closeDropdown();
+      });
+    });
+
+    document.addEventListener('click', () => closeDropdown());
+
+    /* ═══════════════════════════════════════════════════════
+       CURSOR — triangle dot (instant) + three strato lines (lag)
+       ═══════════════════════════════════════════════════════ */
+    const cursor      = document.getElementById('cursor');
+    const cursorLines = document.getElementById('cursor-lines');
+    let mx = -200, my = -200, rx = -200, ry = -200;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+    });
+
+    (function tickLines() {
+      rx += (mx - rx) * 0.09;   // slightly more lag than before for a floaty feel
+      ry += (my - ry) * 0.09;
+      cursorLines.style.left = rx + 'px';
+      cursorLines.style.top  = ry + 'px';
+      requestAnimationFrame(tickLines);
+    })();
+
+    /* Helper: add/remove hover class on the lines element */
+    function linesHover(on) {
+      cursorLines.classList.toggle('hover', on);
+    }
+
+    /* Links */
+    document.querySelectorAll('a').forEach(link => {
+      link.addEventListener('mouseenter', () => linesHover(true));
+      link.addEventListener('mouseleave', () => linesHover(false));
+    });
+
+    /* Language switcher items */
+    [langBtn, ...langDropdown.querySelectorAll('li')].forEach(el => {
+      el.addEventListener('mouseenter', () => linesHover(true));
+      el.addEventListener('mouseleave', () => linesHover(false));
+    });
+
+    /* ═══════════════════════════════════════════════════════
+       3D PRINT EFFECT
+       Bottom-to-top raster scan, 8 rows, alternating L/R.
+       Clip-path polygon geometry (element-space px):
+
+       L→R (layerIdx even), progress p ∈ [0,1]:
+         xR = p×W
+         not first: polygon(0 Ytop, xR Ytop, xR Ybot, W Ybot, W H, 0 H)
+         first:     polygon(0 Ytop, xR Ytop, xR H, 0 H)
+
+       R→L (layerIdx odd):
+         xL = (1−p)×W
+         not first: polygon(xL Ytop, W Ytop, W H, 0 H, 0 Ybot, xL Ybot)
+         first:     polygon(xL Ytop, W Ytop, W H, xL H)
+       ═══════════════════════════════════════════════════════ */
+    function startPrintEffect() {
+      const el     = document.getElementById('strato-tag');
+      const nozzle = document.getElementById('print-nozzle');
+
+      el.style.opacity = '1';
+
+      const W     = el.offsetWidth;
+      const H     = el.offsetHeight;
+      const elTop = el.getBoundingClientRect().top;
+
+      const NUM_LAYERS = 8;
+      const DURATION   = 2800;
+      const msPerLayer = DURATION / NUM_LAYERS;
+      const layerH     = H / NUM_LAYERS;
+
+      nozzle.style.height = Math.max(layerH + 8, 14) + 'px';
+      el.style.clipPath = `polygon(0px ${H}px, 0px ${H}px)`;
+
+      const startTime = performance.now();
+
+      function tick(now) {
+        const elapsed  = now - startTime;
+        const layerIdx = Math.floor(elapsed / msPerLayer);
+        const rawProg  = Math.min((elapsed % msPerLayer) / msPerLayer, 1);
+
+        if (layerIdx >= NUM_LAYERS) {
+          el.style.clipPath    = 'none';
+          nozzle.style.opacity = '0';
+          document.body.classList.add('bg-state');   // logo → watermark NOW
+          requestAnimationFrame(() => {
+            el.style.transition = 'opacity 0.75s ease';
+            el.style.opacity    = '0';
+            setTimeout(() => { el.style.display = 'none'; }, 800);
+          });
+          return;
+        }
+
+        const p = rawProg < 0.5
+          ? 2 * rawProg * rawProg
+          : 1 - Math.pow(-2 * rawProg + 2, 2) / 2;
+
+        const layerFromTop = NUM_LAYERS - 1 - layerIdx;
+        const Ytop   = layerFromTop * layerH;
+        const Ybot   = (layerFromTop + 1) * layerH;
+        const isFirst = (layerIdx === 0);
+        const isLtoR  = (layerIdx % 2 === 0);
+
+        let clipStr, nozzleX;
+
+        if (isLtoR) {
+          const xR = p * W;  nozzleX = xR;
+          clipStr = isFirst
+            ? `polygon(0px ${f(Ytop)}, ${f(xR)} ${f(Ytop)}, ${f(xR)} ${f(H)}, 0px ${f(H)})`
+            : `polygon(0px ${f(Ytop)}, ${f(xR)} ${f(Ytop)}, ${f(xR)} ${f(Ybot)}, ${f(W)} ${f(Ybot)}, ${f(W)} ${f(H)}, 0px ${f(H)})`;
+        } else {
+          const xL = (1 - p) * W;  nozzleX = xL;
+          clipStr = isFirst
+            ? `polygon(${f(xL)} ${f(Ytop)}, ${f(W)} ${f(Ytop)}, ${f(W)} ${f(H)}, ${f(xL)} ${f(H)})`
+            : `polygon(${f(xL)} ${f(Ytop)}, ${f(W)} ${f(Ytop)}, ${f(W)} ${f(H)}, 0px ${f(H)}, 0px ${f(Ybot)}, ${f(xL)} ${f(Ybot)})`;
+        }
+
+        nozzle.style.left    = nozzleX + 'px';
+        nozzle.style.top     = (elTop + Ytop - 4) + 'px';
+        nozzle.style.opacity = '0.55';
+        el.style.clipPath    = clipStr;
+
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    function f(n) { return n.toFixed(2) + 'px'; }
+
+    /* ═══════════════════════════════════════════════════════
+       MAIN SEQUENCE
+       t=0s    Black screen. Logo in hero state.
+       t=1.0s  Paper bg fades in (1.9 s transition).
+       t=2.2s  3D-print reveal of STRATO/STRATO (2.8 s, 8 rows).
+       t≈5.0s  Print done → bg-state fired (logo → watermark).
+       t=6.5s  Nav + content + switcher fade in.
+       ═══════════════════════════════════════════════════════ */
+    const bg = document.getElementById('bg');
+
+    window.addEventListener('load', () => {
+      setTimeout(() => bg.style.opacity  = '1',                    1000);
+      setTimeout(() => startPrintEffect(),                         2200);
+      setTimeout(() => document.body.classList.add('nav-state'),   6500);
+    });
+  </script>
+
+</body>
+</html>
