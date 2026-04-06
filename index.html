@@ -28,7 +28,6 @@
       overflow: hidden;
       background: var(--ink);
       font-family: 'Cinzel', serif;
-      cursor: none;
     }
 
     /* ─── PAPER BACKGROUND ────────────────────────────── */
@@ -172,7 +171,7 @@
       font-family: 'Cinzel', serif;
       font-size: 9px; font-weight: 300; letter-spacing: 0.26em;
       color: var(--ink); opacity: 0.35;
-      padding: 4px 0; cursor: none;
+      padding: 4px 0; cursor: pointer;
       display: flex; align-items: center; gap: 5px;
       transition: opacity 0.25s ease;
     }
@@ -208,7 +207,7 @@
     #lang-dropdown li {
       font-size: 9px; font-weight: 300; letter-spacing: 0.24em;
       color: var(--ink); opacity: 0.38;
-      padding: 6px 14px; cursor: none;
+      padding: 6px 14px; cursor: pointer;
       transition: opacity 0.15s ease;
     }
     #lang-dropdown li:hover { opacity: 0.85; }
@@ -238,65 +237,10 @@
     }
     body.nav-state #principles { opacity: 0.28; }
 
-    /* ─── CURSOR — VITRVS triangle ──────────────────────
-       Apex at mouse hotspot; mix-blend-mode gives inverted
-       colour on any background.                           */
-    #cursor {
-      position: fixed; top: 0; left: 0;
-      pointer-events: none; z-index: 9999;
-      transform: translate(-50%, -1px);   /* apex ≈ mouse point */
-      color: var(--paper); mix-blend-mode: difference;
-      line-height: 0;
-    }
-    /* ─── CURSOR LINES — three strato bars trailing the cursor ──
-       Same lag animation as the old ring, but rendered as the
-       three horizontal brand lines from the logo mark.          */
-    #cursor-lines {
-      position: fixed; top: 0; left: 0;
-      pointer-events: none; z-index: 9998;
-      transform: translate(-50%, -50%);
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      color: var(--paper); mix-blend-mode: difference;
-    }
-    #cursor-lines span {
-      display: block; height: 1px;
-      background: currentColor;
-      transition: width 0.28s ease, opacity 0.3s ease;
-    }
-    /* default widths: widest at top, tapering down — mirrors the
-       triangle-to-base proportion of the logo mark              */
-    #cursor-lines span:nth-child(1) { width: 20px; opacity: 0.65; }
-    #cursor-lines span:nth-child(2) { width: 15px; opacity: 0.50; }
-    #cursor-lines span:nth-child(3) { width: 10px; opacity: 0.35; }
-
-    /* on link / interactive hover: lines grow and brighten */
-    #cursor-lines.hover span:nth-child(1) { width: 26px; opacity: 0.9; }
-    #cursor-lines.hover span:nth-child(2) { width: 20px; opacity: 0.75; }
-    #cursor-lines.hover span:nth-child(3) { width: 14px; opacity: 0.55; }
   </style>
 </head>
 <body>
 
-  <!-- Triangle cursor matching the VITRVS logo mark -->
-  <div id="cursor">
-    <svg xmlns="http://www.w3.org/2000/svg"
-         viewBox="-10 -14 166 140"
-         width="15" height="12"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="13"
-         stroke-linejoin="miter"
-         stroke-miterlimit="20"
-         aria-hidden="true">
-      <polyline points="0,120 73,2 146,120"/>
-    </svg>
-  </div>
-  <!-- Three strato lines — lag-follow the cursor -->
-  <div id="cursor-lines">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
   <div id="bg"></div>
   <div id="nav-line"></div>
   <div id="print-nozzle"></div>
@@ -457,43 +401,6 @@
 
     document.addEventListener('click', () => closeDropdown());
 
-    /* ═══════════════════════════════════════════════════════
-       CURSOR — triangle dot (instant) + three strato lines (lag)
-       ═══════════════════════════════════════════════════════ */
-    const cursor      = document.getElementById('cursor');
-    const cursorLines = document.getElementById('cursor-lines');
-    let mx = -200, my = -200, rx = -200, ry = -200;
-
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top  = my + 'px';
-    });
-
-    (function tickLines() {
-      rx += (mx - rx) * 0.09;   // slightly more lag than before for a floaty feel
-      ry += (my - ry) * 0.09;
-      cursorLines.style.left = rx + 'px';
-      cursorLines.style.top  = ry + 'px';
-      requestAnimationFrame(tickLines);
-    })();
-
-    /* Helper: add/remove hover class on the lines element */
-    function linesHover(on) {
-      cursorLines.classList.toggle('hover', on);
-    }
-
-    /* Links */
-    document.querySelectorAll('a').forEach(link => {
-      link.addEventListener('mouseenter', () => linesHover(true));
-      link.addEventListener('mouseleave', () => linesHover(false));
-    });
-
-    /* Language switcher items */
-    [langBtn, ...langDropdown.querySelectorAll('li')].forEach(el => {
-      el.addEventListener('mouseenter', () => linesHover(true));
-      el.addEventListener('mouseleave', () => linesHover(false));
-    });
 
     /* ═══════════════════════════════════════════════════════
        3D PRINT EFFECT
