@@ -167,6 +167,86 @@
     }
     .manifesto p + p { margin-top: 24px; }
 
+    /* ─── FOUR PANELS SECTION ───────────────────────────
+       Black rectangle cards, side by side.
+       Scroll-driven: start translated below, animate up.  */
+    #panels-section {
+      position: fixed;
+      top: 74px; bottom: 60px;
+      left: 20px; right: 20px;
+      z-index: 3;
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .panel-card {
+      flex: 1;
+      background: var(--ink);
+      transform: translateY(120%);
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    /* ─── PANEL INNER CONTENT ────────────────────────── */
+    .panel-card {
+      position: relative;     /* needed for absolute children */
+      overflow: hidden;
+    }
+
+    /* Title: Cinzel, white, top-left, can overlap the image */
+    .panel-title {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 4;
+      padding: 24px 22px 18px;
+      font-family: 'Cinzel', serif;
+      font-size: clamp(11px, 1.1vw, 15px);
+      font-weight: 400;
+      letter-spacing: 0.28em;
+      color: var(--paper);
+      opacity: 0.92;
+      /* subtle dark gradient so title stays legible over the photo */
+      background: linear-gradient(
+        to bottom,
+        rgba(20,18,16,0.55) 0%,
+        rgba(20,18,16,0.0) 100%
+      );
+    }
+
+    /* Image wrapper fills the card */
+    .panel-img-wrap {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+    }
+
+    /* The photo itself */
+    .panel-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      display: block;
+    }
+
+    /* Vignette / fade overlay — fades edges into the card background (#141210) */
+    .panel-img-fade {
+      position: absolute;
+      inset: 0;
+      background:
+        /* top edge */
+        linear-gradient(to bottom,  rgba(20,18,16,0.0) 30%, rgba(20,18,16,0.0) 100%),
+        /* bottom edge */
+        linear-gradient(to top,     rgba(20,18,16,0.72) 0%,  rgba(20,18,16,0.0) 42%),
+        /* left edge */
+        linear-gradient(to right,   rgba(20,18,16,0.52) 0%,  rgba(20,18,16,0.0) 30%),
+        /* right edge */
+        linear-gradient(to left,    rgba(20,18,16,0.52) 0%,  rgba(20,18,16,0.0) 30%);
+      pointer-events: none;
+    }
+
+
     /* ─── LANGUAGE SWITCHER ─────────────────────────────
        Fixed top-right, fades in with nav-state             */
     #lang-switcher {
@@ -336,6 +416,18 @@
       #link-email    { left: 16px; }
       #link-instagram { right: 16px; }
 
+
+      /* ── PANELS: 2×2 grid on mobile ── */
+      #panels-section {
+        flex-wrap: wrap;
+        top: 60px; bottom: 58px;
+        left: 12px; right: 12px;
+        gap: 8px;
+      }
+      .panel-card {
+        flex: 0 0 calc(50% - 4px);
+      }
+
       /* ── PRINCIPLES: hide to avoid overlap with corner links ── */
       #principles { display: none; }
     }
@@ -418,6 +510,20 @@
       <p id="manifesto-p1"></p>
       <p id="manifesto-p2"></p>
     </div>
+  </div>
+
+  <!-- Four panel cards -->
+  <div id="panels-section">
+    <div class="panel-card" id="panel-1"></div>
+    <div class="panel-card" id="panel-2">
+      <div class="panel-title">VITRVS Pet Series</div>
+      <div class="panel-img-wrap">
+        <img src="pet-series.jpg" alt="VITRVS Pet Series" class="panel-img">
+        <div class="panel-img-fade"></div>
+      </div>
+    </div>
+    <div class="panel-card" id="panel-3"></div>
+    <div class="panel-card" id="panel-4"></div>
   </div>
 
   <!-- Language switcher -->
@@ -647,6 +753,87 @@
 
       requestAnimationFrame(tick);
     }
+
+
+    /* ═══════════════════════════════════════════════════════
+       SCROLL ANIMATION
+       Virtual scroll drives two phases:
+         Phase A  (0 → 0.55): Manifesto scales up + fades out
+         Phase B  (0.40 → 1): Four panels slide in from below,
+                               staggered thresholds per panel
+       ═══════════════════════════════════════════════════════ */
+
+    let scrollProgress = 0;
+    let targetProgress = 0;
+    let scrollRafId    = null;
+    const SCROLL_RANGE = 1100;   // total wheel-delta for 0→1
+
+    /* Panel stagger: each panel starts animating at this progress */
+    const PANEL_STARTS = [0.38, 0.50, 0.62, 0.74];
+    const PANEL_SPAN   = 0.22;   /* progress range over which each panel fully enters */
+
+    function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+
+    function updateScrollState(p) {
+      const content = document.getElementById('content');
+
+      /* ── Manifesto: scale up + fade out ── */
+      if (p <= 0) {
+        /* Back at top — restore CSS control */
+        content.style.transform    = '';
+        content.style.opacity      = '';
+        content.style.transition   = '';
+        content.style.pointerEvents = '';
+      } else {
+        const tA    = Math.min(p / 0.55, 1);
+        const scale = 1 + tA * 0.20;
+        const alpha = Math.max(0, 1 - tA * 1.15);
+        content.style.transition    = 'none';
+        content.style.transform     = 'scale(' + scale.toFixed(4) + ')';
+        content.style.opacity       = alpha.toFixed(4);
+        content.style.pointerEvents = alpha < 0.05 ? 'none' : 'auto';
+      }
+
+      /* ── Panels: staggered slide from below ── */
+      for (let i = 0; i < 4; i++) {
+        const panel = document.getElementById('panel-' + (i + 1));
+        const start = PANEL_STARTS[i];
+        const t     = Math.max(0, Math.min(1, (p - start) / PANEL_SPAN));
+        const eased = easeOutQuart(t);
+        const yPct  = 120 * (1 - eased);
+        panel.style.transform    = 'translateY(' + yPct.toFixed(2) + '%)';
+        panel.style.opacity      = eased.toFixed(4);
+        panel.style.pointerEvents = t > 0 ? 'auto' : 'none';
+      }
+    }
+
+    function tickScroll() {
+      scrollProgress += (targetProgress - scrollProgress) * 0.09;
+      if (Math.abs(scrollProgress - targetProgress) < 0.0004) {
+        scrollProgress = targetProgress;
+        scrollRafId    = null;
+      } else {
+        scrollRafId = requestAnimationFrame(tickScroll);
+      }
+      updateScrollState(scrollProgress);
+    }
+
+    function onScrollDelta(delta) {
+      if (!document.body.classList.contains('nav-state')) return;
+      targetProgress = Math.max(0, Math.min(1, targetProgress + delta / SCROLL_RANGE));
+      if (!scrollRafId) scrollRafId = requestAnimationFrame(tickScroll);
+    }
+
+    window.addEventListener('wheel', e => onScrollDelta(e.deltaY), { passive: true });
+
+    /* Touch / trackpad drag support */
+    let _touchY = 0;
+    window.addEventListener('touchstart', e => { _touchY = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchmove',  e => {
+      const dy = _touchY - e.touches[0].clientY;
+      _touchY  = e.touches[0].clientY;
+      onScrollDelta(dy * 1.6);
+    }, { passive: true });
 
     function f(n) { return n.toFixed(2) + 'px'; }
 
