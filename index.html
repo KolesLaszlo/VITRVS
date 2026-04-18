@@ -498,9 +498,17 @@
         flex: 0 0 calc(50% - 8px);
       }
 
-      /* ── PRINCIPLES + SCROLL HINT: hide to avoid overlap with corner links ── */
-      #principles { display: none; }
-      #scroll-hint { display: none; }
+      /* ── PRINCIPLES + SCROLL HINT: mobilon feljebb tolva a saroklinkok fölé ── */
+      #principles {
+        display: block;
+        bottom: 46px;
+        font-size: 9px;
+        letter-spacing: 0.18em;
+      }
+      #scroll-hint {
+        display: block;
+        bottom: 68px;
+      }
     }
 
     /* ═══════════════════════════════════════════════════════
