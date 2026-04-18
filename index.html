@@ -190,7 +190,7 @@
       position: fixed;
       top: 74px; bottom: 60px;
       left: 20px; right: 20px;
-      z-index: 3;
+      z-index: 15;
       display: flex;
       align-items: stretch;
       gap: 24px;
@@ -216,20 +216,50 @@
       opacity: 0;          /* JS kezeli */
     }
 
-    /* ─── PANEL ALCÍM ────────────────────────────────────── */
-    .panel-subtitle {
-      display: block;
-      font-size: clamp(7px, 0.65vw, 9px);
-      letter-spacing: 0.24em;
-      opacity: 0.58;
-      margin-top: 7px;
-      font-weight: 300;
-    }
-
     /* ─── PANEL INNER CONTENT ────────────────────────── */
     .panel-card {
       position: relative;     /* needed for absolute children */
       overflow: hidden;
+      cursor: pointer;
+    }
+
+    /* Hover overlay brightens the panel slightly */
+    .panel-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(239,236,234,0.07);
+      opacity: 0;
+      z-index: 10;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .panel-card:hover::after { opacity: 1; }
+
+    /* Full-card link overlay — always on top, always clickable */
+    .panel-link {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    /* Arrow hint bottom-right on hover */
+    .panel-arrow {
+      position: absolute;
+      bottom: 18px; right: 20px;
+      z-index: 12;
+      opacity: 0;
+      transform: translate(4px, 4px);
+      transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+      pointer-events: none;
+    }
+    .panel-card:hover .panel-arrow {
+      opacity: 0.55;
+      transform: translate(0, 0);
     }
 
     /* Title: Cinzel, white, top-left, can overlap the image */
@@ -237,17 +267,63 @@
       position: absolute;
       top: 0; left: 0; right: 0;
       z-index: 4;
-      padding: 24px 22px 18px;
+      padding: 22px 20px 18px;
       font-family: 'Cinzel', serif;
-      font-size: clamp(11px, 1.1vw, 15px);
+      font-size: clamp(13px, 1.35vw, 19px);
       font-weight: 400;
-      letter-spacing: 0.28em;
+      letter-spacing: 0.26em;
       color: var(--paper);
-      opacity: 0.92;
+      opacity: 0.95;
       /* subtle dark gradient so title stays legible over the photo */
       background: linear-gradient(
         to bottom,
-        rgba(20,18,16,0.55) 0%,
+        rgba(20,18,16,0.60) 0%,
+        rgba(20,18,16,0.0) 100%
+      );
+    }
+
+    /* ─── PANEL SUBTITLE ────────────────────────────────── */
+    .panel-sub {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 4;
+      padding-top: clamp(44px, 5.5vw, 62px);
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 18px;
+      font-family: 'Cinzel', serif;
+      font-size: clamp(9px, 0.85vw, 12px);
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      color: var(--paper);
+      opacity: 0;
+      line-height: 1.6;
+      background: linear-gradient(
+        to bottom,
+        rgba(20,18,16,0.60) 0%,
+        rgba(20,18,16,0.0) 100%
+      );
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .panel-card:hover .panel-sub { opacity: 0.72; }
+
+    /* ─── PANEL BYLINE (panel-3 alján) ──────────────────── */
+    .panel-byline {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 4;
+      padding: 36px 24px 22px;
+      font-family: 'Cinzel', serif;
+      font-size: clamp(11px, 1.05vw, 15px);
+      font-weight: 300;
+      letter-spacing: 0.30em;
+      color: var(--paper);
+      opacity: 0.90;
+      text-align: center;
+      background: linear-gradient(
+        to top,
+        rgba(20,18,16,0.72) 0%,
         rgba(20,18,16,0.0) 100%
       );
     }
@@ -294,6 +370,15 @@
       user-select: none;
     }
     body.nav-state #lang-switcher { opacity: 1; pointer-events: auto; }
+    body.nav-state #panels-section { pointer-events: auto; }
+
+    /* ─── VISSZATÉRÉS: átmenetek letiltása egy frame erejéig ── */
+    body.no-transition *,
+    body.no-transition *::before,
+    body.no-transition *::after {
+      transition: none !important;
+      animation: none !important;
+    }
 
     #lang-btn {
       background: none; border: none;
@@ -487,21 +572,28 @@
       #link-instagram { right: 16px; }
 
 
-      /* ── PANELS: 2+1 grid on mobile ── */
+      /* ── PANELS: 2×2 grid on mobile ── */
       #panels-section {
         flex-wrap: wrap;
-        align-content: stretch;   /* sorok töltsék ki a konténert */
-        overflow: hidden;          /* animáció klipelése */
+        align-content: stretch;
+        overflow: hidden;
         top: 60px; bottom: 58px;
         left: 12px; right: 12px;
-        gap: 12px;
+        gap: 10px;
       }
       .panel-card {
-        flex: 0 0 calc(50% - 6px);
+        flex: 0 0 calc(50% - 5px);
       }
-      /* 3. panel: teljes szélességű az alsó sorban */
-      #panel-3 {
-        flex: 0 0 100%;
+
+      /* ── PANEL TITLE + BYLINE: mobilos méretek ── */
+      .panel-title {
+        font-size: clamp(12px, 3.8vw, 18px);
+        padding: 14px 14px 12px;
+        letter-spacing: 0.20em;
+      }
+      .panel-byline {
+        font-size: clamp(9px, 2.4vw, 13px);
+        padding: 24px 14px 14px;
       }
 
       /* ── PRINCIPLES + SCROLL HINT: mobilon feljebb tolva a saroklinkok fölé ── */
@@ -585,8 +677,15 @@
       .panel-card {
         flex: 1;
       }
-      #panel-3 {
-        flex: 1;
+      /* landscape mobilon szűkebb panelek → kisebb title */
+      .panel-title {
+        font-size: clamp(10px, 1.8vw, 14px);
+        padding: 12px 12px 10px;
+        letter-spacing: 0.18em;
+      }
+      .panel-byline {
+        font-size: clamp(7px, 1.3vw, 10px);
+        padding: 18px 12px 10px;
       }
     }
 
@@ -618,20 +717,48 @@
     </div>
   </div>
 
-  <!-- Three panel cards -->
+  <!-- Four panel cards -->
   <div id="panels-section">
     <div class="panel-card" id="panel-1">
-      <div class="panel-title">VITRVS EDITION</div>
+      <a href="objects.html" class="panel-link" aria-label="VITRVS OBJECTS"></a>
+      <div class="panel-title">VITRVS OBJECTS</div>
+      <div class="panel-sub">Contemporary objects shaped by proportion.</div>
+      <svg class="panel-arrow" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+        <polyline points="4,16 16,4" stroke="#EFECEA" stroke-width="1.4" stroke-linecap="round"/>
+        <polyline points="7,4 16,4 16,13" stroke="#EFECEA" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </div>
     <div class="panel-card" id="panel-2">
-      <div class="panel-title">VITRVS PET SERIES<span class="panel-subtitle">powered by ENSO Design</span></div>
+      <a href="bespoke.html" class="panel-link" aria-label="VITRVS BESPOKE"></a>
+      <div class="panel-title">VITRVS BESPOKE</div>
+      <div class="panel-sub">Made for moments that deserve permanence.</div>
+      <svg class="panel-arrow" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+        <polyline points="4,16 16,4" stroke="#EFECEA" stroke-width="1.4" stroke-linecap="round"/>
+        <polyline points="7,4 16,4 16,13" stroke="#EFECEA" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="panel-card" id="panel-3">
+      <a href="figures.html" class="panel-link" aria-label="VITRVS FIGURES"></a>
+      <div class="panel-title">VITRVS FIGURES</div>
+      <div class="panel-sub">Characters reimagined through structure and form.</div>
+      <svg class="panel-arrow" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+        <polyline points="4,16 16,4" stroke="#EFECEA" stroke-width="1.4" stroke-linecap="round"/>
+        <polyline points="7,4 16,4 16,13" stroke="#EFECEA" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="panel-card" id="panel-4">
+      <a href="pet-series.html" class="panel-link" aria-label="PET SERIES by Enso Dog Design"></a>
+      <div class="panel-title">PET SERIES</div>
+      <div class="panel-sub">Design for animals, shaped with the same discipline as architecture.</div>
       <div class="panel-img-wrap">
         <img src="pet-series.jpg" alt="VITRVS Pet Series" class="panel-img">
         <div class="panel-img-fade"></div>
       </div>
-    </div>
-    <div class="panel-card" id="panel-3">
-      <div class="panel-title">VITRVS FIGURES</div>
+      <div class="panel-byline">by Enso Dog Design</div>
+      <svg class="panel-arrow" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+        <polyline points="4,16 16,4" stroke="#EFECEA" stroke-width="1.4" stroke-linecap="round"/>
+        <polyline points="7,4 16,4 16,13" stroke="#EFECEA" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </div>
   </div>
 
@@ -726,6 +853,7 @@
       document.getElementById('manifesto-p1').innerHTML   = br(l.p1);
       document.getElementById('manifesto-p2').innerHTML   = br(l.p2);
       document.getElementById('lang-btn').textContent     = l.label + '\u00A0'; // keep chevron
+      sessionStorage.setItem('vitrvs_lang', code);
       document.querySelectorAll('#lang-dropdown li').forEach(li => {
         li.classList.toggle('active', li.dataset.lang === code);
       });
@@ -755,8 +883,9 @@
 
     /* Apply browser language immediately (zero latency),
        then refine with IP detection in the background.   */
-    applyLang(browserLang());
-    detectByIP();
+    const _savedLang = sessionStorage.getItem('vitrvs_lang');
+    applyLang(_savedLang || browserLang());
+    if (!_savedLang) detectByIP();
 
     /* ═══════════════════════════════════════════════════════
        LANGUAGE SWITCHER DROPDOWN
@@ -884,9 +1013,10 @@
     let scrollRafId    = null;
     const SCROLL_RANGE = 1100;   // total wheel-delta for 0→1
 
-    /* Panel stagger: each panel starts animating at this progress */
-    const PANEL_STARTS = [0.56, 0.65, 0.74];
-    const PANEL_SPAN   = 0.20;   /* progress range over which each panel fully enters */
+    /* Panel stagger: each panel starts animating at this progress
+       Order: VITRVS Edition, VITRVS Atelier, VITRVS Figures, Pet Series */
+    const PANEL_STARTS = [0.56, 0.63, 0.70, 0.77];
+    const PANEL_SPAN   = 0.18;   /* progress range over which each panel fully enters */
 
     function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
 
@@ -921,7 +1051,7 @@
 
     function getPanelRect(i) {
       const vw = window.innerWidth, vh = window.innerHeight;
-      const pw = (vw - 40 - 48) / 3;          /* 20px margins, 24px×2 gaps */
+      const pw = (vw - 40 - 72) / 4;          /* 20px margins, 24px×3 gaps */
       const ph = vh - 74 - 60;
       return {
         cx: 20 + i * (pw + 24) + pw / 2,
@@ -985,43 +1115,20 @@
         logo.style.transform  = 'translate(-50%, -50%) scale(' + triScale.toFixed(4) + ')';
         logo.style.opacity    = triOpacity.toFixed(4);
 
-        /* ── VONALAK: p=0.4125-ig helyben maradnak, majd -90° fordulat + panel transzformáció ── */
-        const BAR_START = 0.75;  /* tA értéken belül: ettől kezd animálódni */
+        /* ── VONALAK: a háromszöggel együtt tágulnak kifelé és halványodnak ── */
+        const cx = window.innerWidth  / 2;
+        const cy = window.innerHeight / 2;
         for (let i = 0; i < 3; i++) {
-          const el    = barEls[i];
-          const bar   = getBarRect(i);
-          const panel = getPanelRect(i);
-
-          if (tA < BAR_START) {
-            /* ── Helyben: opacity a háromszöggel egyező, transform nulla ── */
-            el.style.opacity   = '0.045';
-            el.style.transform = '';
-            el.style.filter    = '';
-          } else {
-            /* ── Animáció: tA=0.75→1 leképzése t=0→1-re ── */
-            const t = (tA - BAR_START) / (1 - BAR_START);
-            const e = easeOutQuart(t);
-
-            /* Eltolás: vonal közepe → panel közepe */
-            const tx = (panel.cx - bar.cx) * e;
-            const ty = (panel.cy - bar.cy) * e;
-
-            /* Elforgatás: 0° → -90° (balra) */
-            const angle = -90 * e;
-
-            /* Méretarány: a vonal → panel mérete
-               Elforgatás után a vonal szélessége lesz a panel magassága,
-               és a vonal magassága lesz a panel szélessége */
-            const sx = lerp(1, panel.h / bar.w, e);
-            const sy = lerp(1, panel.w / bar.h, e);
-
-            el.style.opacity   = '0.045';
-            el.style.filter    = 'none';
-            el.style.transform =
-              'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px)' +
-              ' rotate(' + angle.toFixed(2) + 'deg)' +
-              ' scale(' + sx.toFixed(4) + ',' + sy.toFixed(4) + ')';
-          }
+          const el  = barEls[i];
+          const bar = getBarRect(i);
+          /* A vonal középpontja a képernyő közepéhez képest tágul ki (triScale szerint) */
+          const dx = (bar.cx - cx) * (triScale - 1);
+          const dy = (bar.cy - cy) * (triScale - 1);
+          el.style.opacity   = triOpacity.toFixed(4);
+          el.style.filter    = 'none';
+          el.style.transform =
+            'translate(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px)' +
+            ' scale(' + triScale.toFixed(4) + ')';
         }
 
         /* ── MANIFESTO SZÖVEG: csak halványodik, a logó animáció 50%-ánál tűnik el ── */
@@ -1033,8 +1140,8 @@
         content.style.pointerEvents = alpha < 0.05 ? 'none' : 'auto';
       }
 
-      /* ── PANELOK: staggerelt belépés (3 db) ── */
-      for (let i = 0; i < 3; i++) {
+      /* ── PANELOK: staggerelt belépés (4 db) ── */
+      for (let i = 0; i < 4; i++) {
         const panel = document.getElementById('panel-' + (i + 1));
         const start = PANEL_STARTS[i];
         const t     = Math.max(0, Math.min(1, (p - start) / PANEL_SPAN));
@@ -1091,10 +1198,80 @@
        ═══════════════════════════════════════════════════════ */
     const bg = document.getElementById('bg');
 
+    /* ═══════════════════════════════════════════════════════
+       VISSZATÉRÉS DETEKTÁLÁSA (sessionStorage)
+       Ha a látogató már látta az intrót ebben a munkamenetben,
+       az összes átmenetet letiltjuk és azonnal nav-state-be
+       ugrunk — így a böngésző Back gombja is simán működik.
+       ═══════════════════════════════════════════════════════ */
+    function skipToNavState() {
+      const logoMark   = document.getElementById('logo-mark');
+      const vitrvsName = document.getElementById('vitrvs-name');
+      const studioName = document.getElementById('studio-name');
+
+      /* Átmenetek letiltása az azonnali megjelenéshez */
+      document.body.classList.add('no-transition');
+
+      bg.style.opacity         = '1';
+      bg.style.transition      = 'none';
+      logoMark.style.transition  = 'none';
+      vitrvsName.style.transition = 'none';
+      studioName.style.transition = 'none';
+
+      document.body.classList.add('paper-up');
+      logoMark.style.opacity   = '0.045';
+      logoMark.style.filter    = '';
+      vitrvsName.style.opacity = '1';
+      studioName.style.opacity = '1';
+
+      /* STRATO/STRATO — az intro animáció után már nem látható, elrejtjük */
+      const stratoTag = document.getElementById('strato-tag');
+      if (stratoTag) {
+        stratoTag.style.transition = 'none';
+        stratoTag.style.opacity    = '0';
+        stratoTag.style.display    = 'none';
+      }
+
+      /* Nav-state azonnal */
+      document.body.classList.add('nav-state');
+      placeBarEls();
+
+      /* Scroll pozíció visszaállítása CSAK ha aloldalról érkezett back gombbal
+         (a vitrvs_nav_to_sub flag-et logó/back kattintásra a subpage-ek törlik) */
+      if (sessionStorage.getItem('vitrvs_nav_to_sub') === '1') {
+        sessionStorage.removeItem('vitrvs_nav_to_sub');
+        const savedScroll = parseFloat(sessionStorage.getItem('vitrvs_scroll') || '1');
+        scrollProgress = savedScroll;
+        targetProgress = savedScroll;
+        updateScrollState(savedScroll);
+      }
+
+      /* Átmenetek visszakapcsolása egy frame után
+         (hogy a hover-animációk, scroll-animációk rendesen működjenek) */
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.body.classList.remove('no-transition');
+        });
+      });
+    }
+
     window.addEventListener('load', () => {
       const logoMark   = document.getElementById('logo-mark');
       const vitrvsName = document.getElementById('vitrvs-name');
       const studioName = document.getElementById('studio-name');
+
+      /* Frissítéskor töröljük az intro-flag-et → animáció újra lefut */
+      const navType = performance.getEntriesByType('navigation')[0]?.type;
+      if (navType === 'reload') {
+        sessionStorage.removeItem('vitrvs_intro_seen');
+        sessionStorage.removeItem('vitrvs_nav_to_sub');
+      }
+
+      /* Ha már látta az intrót ebben a sessionben → ugrás */
+      if (sessionStorage.getItem('vitrvs_intro_seen')) {
+        skipToNavState();
+        return;
+      }
 
       /* t=0.4 s — a logó felsejlik a fekete háttérben */
       setTimeout(() => { logoMark.style.opacity = '1'; },           400);
@@ -1110,8 +1287,20 @@
         logoMark.style.opacity = '0.045';
         startPrintEffect();
       },                                                           3000);
-      /* t=7.3 s — navigációs állapot (a nyomtatás 5.8 s körül ér véget) */
-      setTimeout(() => { document.body.classList.add('nav-state'); placeBarEls(); }, 7300);
+      /* t=7.3 s — navigációs állapot; flag mentése */
+      setTimeout(() => {
+        document.body.classList.add('nav-state');
+        placeBarEls();
+        sessionStorage.setItem('vitrvs_intro_seen', '1');
+      }, 7300);
+    });
+
+    /* Scroll pozíció + visszanavigációs flag mentése panel-kattintáskor */
+    document.querySelectorAll('.panel-link').forEach(link => {
+      link.addEventListener('click', () => {
+        sessionStorage.setItem('vitrvs_scroll', scrollProgress.toFixed(4));
+        sessionStorage.setItem('vitrvs_nav_to_sub', '1');
+      });
     });
   </script>
 
