@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VITRVS BESPOKE — strato/strato</title>
+  <meta name="description" content="VITRVS BESPOKE — bespoke objects made to your specification.">
+
+  <style>
+    @font-face {
+      font-family: 'Cinzel';
+      src: url('Cinzel-VariableFont_wght.ttf') format('truetype');
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ink:   #141210;
+      --paper: #EFECEA;
+      --ease:  cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ─── TOP NAV ─────────────────────────────────── */
+    #top-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(24px, 5vw, 64px);
+      background: var(--paper);
+      border-bottom: 1px solid rgba(20,18,16,0.10);
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    #top-nav.visible { opacity: 1; transform: translateY(0); }
+
+    #nav-left {
+      display: flex; align-items: center; gap: 18px;
+      text-decoration: none; color: var(--ink);
+    }
+    #nav-left img { width: 28px; opacity: 0.85; }
+    #nav-brand {
+      font-size: 13px; font-weight: 600;
+      letter-spacing: 0.18em; opacity: 0.85;
+    }
+
+    #back-link {
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 0.22em; color: var(--ink);
+      text-decoration: none; opacity: 0.45;
+      transition: opacity 0.3s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    #back-link:hover { opacity: 0.85; }
+    #back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ─── LANG SWITCHER ───────────────────────────── */
+    #lang-switcher { position: relative; font-size: 11px; letter-spacing: 0.18em; }
+    #lang-btn {
+      background: none; border: none; cursor: pointer;
+      font-family: 'Cinzel', serif; font-size: 11px;
+      font-weight: 500; letter-spacing: 0.18em;
+      color: var(--ink); opacity: 0.5;
+      transition: opacity 0.3s; padding: 4px 0;
+    }
+    #lang-btn:hover { opacity: 0.9; }
+    #lang-btn::after {
+      content: ''; display: inline-block;
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid currentColor;
+      margin-left: 6px; vertical-align: middle; opacity: 0.5;
+    }
+    #lang-dropdown {
+      display: none; position: absolute;
+      top: calc(100% + 8px); right: 0;
+      background: var(--paper);
+      border: 1px solid rgba(20,18,16,0.15);
+      list-style: none; min-width: 64px;
+    }
+    #lang-switcher.open #lang-dropdown { display: block; }
+    #lang-dropdown li {
+      padding: 10px 18px; cursor: pointer;
+      font-size: 11px; letter-spacing: 0.18em;
+      opacity: 0.5; transition: opacity 0.2s;
+    }
+    #lang-dropdown li:hover, #lang-dropdown li.active { opacity: 1; }
+
+    /* ─── HERO ────────────────────────────────────── */
+    #hero {
+      padding-top: 64px;
+      min-height: 52vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding-left: clamp(24px, 5vw, 64px);
+      padding-right: clamp(24px, 5vw, 64px);
+      padding-bottom: clamp(40px, 6vh, 72px);
+      border-bottom: 1px solid rgba(20,18,16,0.08);
+    }
+
+    #hero-eyebrow {
+      font-size: 10px; font-weight: 400;
+      letter-spacing: 0.3em;
+      margin-bottom: 20px;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.8s var(--ease) 0.15s, transform 0.8s var(--ease) 0.15s;
+    }
+    #hero-eyebrow.visible { opacity: 0.4; transform: translateY(0); }
+
+    #hero-title {
+      font-size: clamp(36px, 7vw, 88px);
+      font-weight: 700; letter-spacing: 0.06em; line-height: 1;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.9s var(--ease) 0.25s, transform 0.9s var(--ease) 0.25s;
+    }
+    #hero-title.visible { opacity: 1; transform: translateY(0); }
+
+    #hero-rule {
+      width: 0; height: 1px;
+      background: var(--ink); opacity: 0.18;
+      margin-top: 32px;
+      transition: width 1.2s var(--ease) 0.5s;
+    }
+    #hero-rule.visible { width: min(480px, 60vw); }
+
+    #hero-sub {
+      margin-top: 22px;
+      font-size: clamp(11px, 1.4vw, 14px);
+      font-weight: 400; letter-spacing: 0.18em; line-height: 1.9;
+      max-width: 520px;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.8s var(--ease) 0.6s, transform 0.8s var(--ease) 0.6s;
+    }
+    #hero-sub.visible { opacity: 0.65; transform: translateY(0); }
+
+    /* ─── STRATA ──────────────────────────────────── */
+    #strata {
+      display: flex; flex-direction: column; gap: 6px;
+      padding: clamp(40px, 6vh, 72px) clamp(24px, 5vw, 64px);
+      border-bottom: 1px solid rgba(20,18,16,0.08);
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.8s var(--ease) 0.8s, transform 0.8s var(--ease) 0.8s;
+    }
+    #strata.visible { opacity: 1; transform: translateY(0); }
+    .strata-bar { display: flex; align-items: center; gap: 20px; }
+    .strata-bar-line { height: 1px; background: var(--ink); opacity: 0.15; flex: 1; }
+    .strata-bar:nth-child(1) .strata-bar-line { max-width: 100%; }
+    .strata-bar:nth-child(2) .strata-bar-line { max-width: 72%; }
+    .strata-bar:nth-child(3) .strata-bar-line { max-width: 44%; }
+    .strata-label { font-size: 9px; letter-spacing: 0.3em; opacity: 0.3; white-space: nowrap; min-width: 80px; text-align: right; }
+
+    /* ─── PROCESS SECTION ─────────────────────────── */
+    #process {
+      padding: clamp(48px, 7vh, 96px) clamp(24px, 5vw, 64px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(32px, 5vw, 80px);
+      border-bottom: 1px solid rgba(20,18,16,0.08);
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.8s var(--ease) 0.9s, transform 0.8s var(--ease) 0.9s;
+    }
+    #process.visible { opacity: 1; transform: translateY(0); }
+
+    #process-intro h2 {
+      font-size: clamp(14px, 2vw, 20px);
+      font-weight: 600; letter-spacing: 0.12em;
+      margin-bottom: 24px;
+    }
+    #process-intro p {
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 0.14em; line-height: 1.9;
+      opacity: 0.55;
+    }
+
+    #process-steps {
+      display: flex; flex-direction: column; gap: 24px;
+    }
+    .step {
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .step-num {
+      font-size: 9px; letter-spacing: 0.35em;
+      opacity: 0.25; min-width: 32px; padding-top: 2px;
+    }
+    .step-body h3 {
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.16em; margin-bottom: 8px;
+    }
+    .step-body p {
+      font-size: 11px; letter-spacing: 0.12em;
+      line-height: 1.8; opacity: 0.5;
+    }
+
+    @media (max-width: 680px) {
+      #process { grid-template-columns: 1fr; }
+    }
+
+    /* ─── CTA ─────────────────────────────────────── */
+    #cta-section {
+      padding: clamp(48px, 7vh, 96px) clamp(24px, 5vw, 64px);
+      border-bottom: 1px solid rgba(20,18,16,0.08);
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.8s var(--ease) 1.1s, transform 0.8s var(--ease) 1.1s;
+    }
+    #cta-section.visible { opacity: 1; transform: translateY(0); }
+    #cta-label {
+      font-size: 10px; letter-spacing: 0.3em; opacity: 0.4;
+      margin-bottom: 20px;
+    }
+    #cta-link {
+      display: inline-block;
+      font-size: clamp(14px, 2.2vw, 22px);
+      font-weight: 600; letter-spacing: 0.14em;
+      color: var(--ink); text-decoration: none;
+      border-bottom: 1px solid rgba(20,18,16,0.3);
+      padding-bottom: 4px;
+      transition: border-color 0.3s, opacity 0.3s;
+    }
+    #cta-link:hover { border-color: var(--ink); }
+
+    /* ─── FOOTER ──────────────────────────────────── */
+    footer {
+      padding: clamp(32px, 5vh, 64px) clamp(24px, 5vw, 64px);
+      border-top: 1px solid rgba(20,18,16,0.08);
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    footer a {
+      font-size: 10px; letter-spacing: 0.22em;
+      color: var(--ink); text-decoration: none;
+      opacity: 0.35; transition: opacity 0.3s;
+    }
+    footer a:hover { opacity: 0.8; }
+    #principles-footer { font-size: 9px; letter-spacing: 0.3em; opacity: 0.18; }
+
+    @media (max-width: 600px) {
+      .strata-label { display: none; }
+      .strata-bar-line { max-width: 100% !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav id="top-nav">
+    <a href="index.html" id="nav-left" aria-label="VITRVS home">
+      <img src="VITRVS_mark.png" alt="VITRVS mark">
+      <span id="nav-brand">VITRVS</span>
+    </a>
+    <a href="index.html" id="back-link">
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="9,2 4,7 9,12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span id="back-label">BACK</span>
+    </a>
+    <div id="lang-switcher">
+      <button id="lang-btn" aria-haspopup="listbox" aria-expanded="false">EN</button>
+      <ul id="lang-dropdown" role="listbox">
+        <li role="option" data-lang="en">EN</li>
+        <li role="option" data-lang="de">DE</li>
+        <li role="option" data-lang="it">IT</li>
+        <li role="option" data-lang="fr">FR</li>
+        <li role="option" data-lang="hu">HU</li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div id="hero-eyebrow">VITRVS / 02</div>
+    <h1 id="hero-title">VITRVS<br>BESPOKE</h1>
+    <div id="hero-rule"></div>
+    <p id="hero-sub"></p>
+  </section>
+
+  <!-- STRATA -->
+  <div id="strata">
+    <div class="strata-bar"><div class="strata-bar-line"></div><div class="strata-label">FIRMITAS</div></div>
+    <div class="strata-bar"><div class="strata-bar-line"></div><div class="strata-label">UTILITAS</div></div>
+    <div class="strata-bar"><div class="strata-bar-line"></div><div class="strata-label">VENUSTAS</div></div>
+  </div>
+
+  <!-- PROCESS -->
+  <section id="process">
+    <div id="process-intro">
+      <h2 id="process-title">THE PROCESS</h2>
+      <p id="process-body"></p>
+    </div>
+    <div id="process-steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3 id="step1-title">BRIEF</h3>
+          <p id="step1-body"></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3 id="step2-title">DESIGN</h3>
+          <p id="step2-body"></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3 id="step3-title">PRODUCTION</h3>
+          <p id="step3-body"></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <h3 id="step4-title">DELIVERY</h3>
+          <p id="step4-body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta-section">
+    <div id="cta-label">START A PROJECT</div>
+    <a href="mailto:hello@vitrvs.design" id="cta-link">hello@vitrvs.design</a>
+  </section>
+
+  <footer>
+    <a href="mailto:hello@vitrvs.design">hello@vitrvs.design</a>
+    <div id="principles-footer">FIRMITAS · UTILITAS · VENUSTAS</div>
+    <a href="https://instagram.com/vitrvs.design" target="_blank" rel="noopener">@vitrvs.design</a>
+  </footer>
+
+  <script>
+    const LANGS = {
+      en: {
+        label:'EN', back:'BACK',
+        heroSub: 'VITRVS Bespoke is dedicated to commissioned works for weddings, ceremonies, and special occasions.\n\nWe design objects that mark transitions \u2014\npieces that carry meaning through proportion, material, and form.\n\nEvery commission begins with dialogue.\nEvery object is conceived as a lasting gesture.',
+        processTitle: 'THE PROCESS',
+        processBody: 'Every atelier commission begins with a conversation. We listen, we question, we propose. The result is an object that could not exist for anyone else.',
+        steps: [
+          { title:'BRIEF',      body:'You describe the object — its purpose, its context, its constraints. We ask the questions you haven\'t thought of yet.' },
+          { title:'DESIGN',     body:'We develop form proposals based on classical proportion and your requirements. You select, we refine.' },
+          { title:'PRODUCTION', body:'The object is printed layer by layer in our studio, finished by hand to the agreed specification.' },
+          { title:'DELIVERY',   body:'Each piece arrives packaged, documented, and signed. Turnaround is typically 2–4 weeks from brief.' },
+        ],
+        ctaLabel:'START A PROJECT',
+      },
+      de: {
+        label:'DE', back:'ZURÜCK',
+        heroSub: 'VITRVS Bespoke ist Auftragsarbeiten f\u00fcr Hochzeiten, Zeremonien und besondere Anl\u00e4sse gewidmet.\n\nWir gestalten Objekte, die \u00dcberg\u00e4nge markieren \u2014\nSt\u00fccke, die Bedeutung durch Proportion, Material und Form tragen.\n\nJeder Auftrag beginnt mit einem Dialog.\nJedes Objekt wird als bleibendes Zeichen konzipiert.',
+        processTitle: 'DER PROZESS',
+        processBody: 'Jeder Atelier-Auftrag beginnt mit einem Gespräch. Wir hören zu, stellen Fragen, machen Vorschläge. Das Ergebnis ist ein Objekt, das so nur für Sie existieren könnte.',
+        steps: [
+          { title:'BRIEF',      body:'Sie beschreiben das Objekt — seinen Zweck, seinen Kontext, seine Einschränkungen. Wir stellen die Fragen, an die Sie noch nicht gedacht haben.' },
+          { title:'DESIGN',     body:'Wir entwickeln Formentwürfe auf Basis klassischer Proportionen und Ihrer Anforderungen. Sie wählen, wir verfeinern.' },
+          { title:'PRODUKTION', body:'Das Objekt wird Schicht für Schicht in unserem Studio gedruckt und nach der vereinbarten Spezifikation von Hand fertiggestellt.' },
+          { title:'LIEFERUNG',  body:'Jedes Stück kommt verpackt, dokumentiert und signiert an. Die Lieferzeit beträgt typischerweise 2–4 Wochen nach dem Brief.' },
+        ],
+        ctaLabel:'PROJEKT STARTEN',
+      },
+      it: {
+        label:'IT', back:'INDIETRO',
+        heroSub: 'VITRVS Bespoke \u00e8 dedicata a opere su commissione per matrimoni, cerimonie e occasioni speciali.\n\nProgettiamo oggetti che segnano le transizioni \u2014\npezzi che portano significato attraverso proporzione, materiale e forma.\n\nOgni commissione inizia con un dialogo.\nOgni oggetto \u00e8 concepito come un gesto duraturo.',
+        processTitle: 'IL PROCESSO',
+        processBody: 'Ogni commissione atelier inizia con una conversazione. Ascoltiamo, facciamo domande, proponiamo. Il risultato è un oggetto che non potrebbe esistere per nessun altro.',
+        steps: [
+          { title:'BRIEF',      body:'Descrivi l\'oggetto — il suo scopo, il suo contesto, i suoi limiti. Facciamo le domande a cui non hai ancora pensato.' },
+          { title:'DESIGN',     body:'Sviluppiamo proposte di forma basate sulla proporzione classica e sui tuoi requisiti. Scegli, noi raffiniamo.' },
+          { title:'PRODUZIONE', body:'L\'oggetto viene stampato strato per strato nel nostro studio, rifinito a mano secondo le specifiche concordate.' },
+          { title:'CONSEGNA',   body:'Ogni pezzo arriva imballato, documentato e firmato. I tempi di consegna sono tipicamente 2–4 settimane dal brief.' },
+        ],
+        ctaLabel:'INIZIA UN PROGETTO',
+      },
+      fr: {
+        label:'FR', back:'RETOUR',
+        heroSub: 'VITRVS Bespoke est d\u00e9di\u00e9e aux \u0153uvres sur commande pour les mariages, c\u00e9r\u00e9monies et occasions sp\u00e9ciales.\n\nNous concevons des objets qui marquent les transitions \u2014\ndes pi\u00e8ces qui portent du sens \u00e0 travers la proportion, le mat\u00e9riau et la forme.\n\nChaque commande commence par un dialogue.\nChaque objet est con\u00e7u comme un geste durable.',
+        processTitle: 'LE PROCESSUS',
+        processBody: 'Chaque commission atelier commence par une conversation. Nous écoutons, nous questionnons, nous proposons. Le résultat est un objet qui ne pourrait exister pour personne d\'autre.',
+        steps: [
+          { title:'BRIEF',      body:'Vous décrivez l\'objet — son usage, son contexte, ses contraintes. Nous posons les questions auxquelles vous n\'avez pas encore pensé.' },
+          { title:'DESIGN',     body:'Nous développons des propositions de forme basées sur la proportion classique et vos exigences. Vous choisissez, nous affinons.' },
+          { title:'PRODUCTION', body:'L\'objet est imprimé couche par couche dans notre studio, fini à la main selon les spécifications convenues.' },
+          { title:'LIVRAISON',  body:'Chaque pièce arrive emballée, documentée et signée. Le délai est généralement de 2 à 4 semaines après le brief.' },
+        ],
+        ctaLabel:'DÉMARRER UN PROJET',
+      },
+      hu: {
+        label:'HU', back:'VISSZA',
+        heroSub: 'A VITRVS Bespoke esk\u00fcv\u0151kre, szertart\u00e1sokra \u00e9s k\u00fcl\u00f6nleges alkalmakra sz\u00e1nt megb\u00edz\u00e1sos munk\u00e1k alap-koll ekci\u00f3ja.\n\n\u00c1tmenetek jel\u00f6l\u00e9s\u00e9re sz\u00e1nt t\u00e1rgyakat tervez\u00fcnk \u2014\ndarabokat, amelyek ar\u00e1ny, anyag \u00e9s forma \u00e1ltal hordoznak jelent\u00e9st.\n\nMinden megb\u00edz\u00e1s p\u00e1rbesz\u00e9ddel kezd\u0151dik.\nMinden t\u00e1rgyat maradand\u00f3 gesztusk\u00e9nt alkotunk meg.',
+        processTitle: 'A FOLYAMAT',
+        processBody: 'Minden atelier megbízás egy párbeszéddel kezdődik. Hallgatunk, kérdezünk, javaslatokat teszünk. Az eredmény egy tárgy, amely csak az Ön számára létezhetne.',
+        steps: [
+          { title:'BRIEF',       body:'Ön leírja a tárgyat — célját, kontextusát, korlátait. Mi feltesszük azokat a kérdéseket, amelyekre Ön még nem gondolt.' },
+          { title:'TERVEZÉS',    body:'Klasszikus arányok és az Ön igényei alapján formajavaslatokat dolgozunk ki. Ön választ, mi finomítunk.' },
+          { title:'GYÁRTÁS',     body:'A tárgyat rétegről rétegre nyomtatjuk a stúdiónkban, majd kézzel kikészítjük az egyeztetett specifikáció szerint.' },
+          { title:'SZÁLLÍTÁS',   body:'Minden tárgy csomagolva, dokumentálva és aláírva érkezik. A határidő általában 2–4 hét a brief-től számítva.' },
+        ],
+        ctaLabel:'PROJEKT INDÍTÁSA',
+      },
+    };
+
+    const COUNTRY_LANG = { HU:'hu', DE:'de', AT:'de', LI:'de', IT:'it', SM:'it', VA:'it', FR:'fr', MC:'fr' };
+
+    function browserLang() {
+      const code = (navigator.language || 'en').split('-')[0].toLowerCase();
+      return LANGS[code] ? code : 'en';
+    }
+
+    let currentLang = 'en', userChose = false;
+    function br(s) { return s.replace(/\n/g, '<br>'); }
+
+    function applyLang(code) {
+      const l = LANGS[code] || LANGS.en;
+      currentLang = code;
+      document.documentElement.lang = code;
+      document.getElementById('back-label').textContent   = l.back;
+      document.getElementById('hero-sub').innerHTML       = br(l.heroSub);
+      document.getElementById('process-title').textContent = l.processTitle;
+      document.getElementById('process-body').textContent  = l.processBody;
+      document.getElementById('cta-label').textContent     = l.ctaLabel;
+      document.getElementById('lang-btn').textContent      = l.label + '\u00A0';
+      l.steps.forEach((s, i) => {
+        document.getElementById('step' + (i+1) + '-title').textContent = s.title;
+        document.getElementById('step' + (i+1) + '-body').textContent  = s.body;
+      });
+      sessionStorage.setItem('vitrvs_lang', code);
+      document.querySelectorAll('#lang-dropdown li').forEach(li => {
+        li.classList.toggle('active', li.dataset.lang === code);
+      });
+    }
+
+    function detectByIP() {
+      if (userChose) return;
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 3000);
+      fetch('https://ipapi.co/json/', { signal: ctrl.signal })
+        .then(r => r.json()).then(data => {
+          if (userChose) return;
+          const lang = COUNTRY_LANG[data.country_code] || 'en';
+          if (lang !== currentLang) applyLang(lang);
+        }).catch(() => {});
+    }
+
+    const _savedLang = sessionStorage.getItem('vitrvs_lang');
+    applyLang(_savedLang || browserLang());
+    if (!_savedLang) detectByIP();
+
+    const switcher = document.getElementById('lang-switcher');
+    const langBtn  = document.getElementById('lang-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
+
+    langBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      switcher.classList.toggle('open');
+      langBtn.setAttribute('aria-expanded', switcher.classList.contains('open'));
+    });
+    langDropdown.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', e => {
+        e.stopPropagation(); userChose = true;
+        applyLang(li.dataset.lang);
+        switcher.classList.remove('open');
+        langBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', () => {
+      switcher.classList.remove('open');
+      langBtn.setAttribute('aria-expanded', 'false');
+    });
+
+    window.addEventListener('load', () => {
+      requestAnimationFrame(() => {
+        ['top-nav','hero-eyebrow','hero-title','hero-rule','hero-sub','strata','process','cta-section']
+          .forEach(id => document.getElementById(id).classList.add('visible'));
+      });
+    });
+
+    const navLeft = document.getElementById('nav-left');
+    if (navLeft) navLeft.addEventListener('click', () => {
+      sessionStorage.removeItem('vitrvs_nav_to_sub');
+    });
+  </script>
+
+</body>
+</html>

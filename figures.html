@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VITRVS FIGURES — strato/strato</title>
+  <meta name="description" content="VITRVS FIGURES — sculptural forms built layer by layer.">
+
+  <style>
+    @font-face {
+      font-family: 'Cinzel';
+      src: url('Cinzel-VariableFont_wght.ttf') format('truetype');
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ink:   #141210;
+      --paper: #EFECEA;
+      --ease:  cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ─── TOP NAV ─────────────────────────────────── */
+    #top-nav {
+      position: fixed; top: 0; left: 0; right: 0; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(24px, 5vw, 64px);
+      background: var(--paper);
+      border-bottom: 1px solid rgba(20,18,16,0.10);
+      z-index: 100; opacity: 0; transform: translateY(-8px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    #top-nav.visible { opacity: 1; transform: translateY(0); }
+
+    #nav-left {
+      display: flex; align-items: center; gap: 18px;
+      text-decoration: none; color: var(--ink);
+    }
+    #nav-left img { width: 28px; opacity: 0.85; }
+    #nav-brand { font-size: 13px; font-weight: 600; letter-spacing: 0.18em; opacity: 0.85; }
+
+    #back-link {
+      font-size: 11px; letter-spacing: 0.22em; color: var(--ink);
+      text-decoration: none; opacity: 0.45; transition: opacity 0.3s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    #back-link:hover { opacity: 0.85; }
+    #back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ─── LANG SWITCHER ───────────────────────────── */
+    #lang-switcher { position: relative; font-size: 11px; letter-spacing: 0.18em; }
+    #lang-btn {
+      background: none; border: none; cursor: pointer;
+      font-family: 'Cinzel', serif; font-size: 11px;
+      font-weight: 500; letter-spacing: 0.18em;
+      color: var(--ink); opacity: 0.5; transition: opacity 0.3s; padding: 4px 0;
+    }
+    #lang-btn:hover { opacity: 0.9; }
+    #lang-btn::after {
+      content: ''; display: inline-block; width: 0; height: 0;
+      border-left: 4px solid transparent; border-right: 4px solid transparent;
+      border-top: 5px solid currentColor;
+      margin-left: 6px; vertical-align: middle; opacity: 0.5;
+    }
+    #lang-dropdown {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--paper); border: 1px solid rgba(20,18,16,0.15);
+      list-style: none; min-width: 64px;
+    }
+    #lang-switcher.open #lang-dropdown { display: block; }
+    #lang-dropdown li {
+      padding: 10px 18px; cursor: pointer; font-size: 11px;
+      letter-spacing: 0.18em; opacity: 0.5; transition: opacity 0.2s;
+    }
+    #lang-dropdown li:hover, #lang-dropdown li.active { opacity: 1; }
+
+    /* ─── HERO ────────────────────────────────────── */
+    #hero {
+      padding-top: 64px; min-height: 52vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding-left: clamp(24px, 5vw, 64px); padding-right: clamp(24px, 5vw, 64px);
+      padding-bottom: clamp(40px, 6vh, 72px);
+      border-bottom: 1px solid rgba(20,18,16,0.08);
+    }
+    #hero-eyebrow {
+      font-size: 10px; letter-spacing: 0.3em; margin-bottom: 20px;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.8s var(--ease) 0.15s, transform 0.8s var(--ease) 0.15s;
+    }
+    #hero-eyebrow.visible { opacity: 0.4; transform: translateY(0); }
+    #hero-title {
+      font-size: clamp(36px, 7vw, 88px); font-weight: 700;
+      letter-spacing: 0.06em; line-height: 1;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.9s var(--ease) 0.25s, transform 0.9s var(--ease) 0.25s;
+    }
+    #hero-title.visible { opacity: 1; transform: translateY(0); }
+    #hero-rule {
+      width: 0; height: 1px; background: var(--ink); opacity: 0.18; margin-top: 32px;
+      transition: width 1.2s var(--ease) 0.5s;
+    }
+    #hero-rule.visible { width: min(480px, 60vw); }
+    #hero-sub {
+      margin-top: 22px; font-size: clamp(11px, 1.4vw, 14px);
+      letter-spacing: 0.18em; line-height: 1.9; max-width: 520px;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.8s var(--ease) 0.6s, transform 0.8s var(--ease) 0.6s;
+    }
+    #hero-sub.visible { opacity: 0.65; transform: translateY(0); }
+
+    /* ─── STRATA ──────────────────────────────────── */
+    #strata {
+      display: flex; flex-direction: column; gap: 6px;
+      padding: clamp(40px, 6vh, 72px) clamp(24px, 5vw, 64px);
+      border-bottom: 1px solid rgba(20,18,16,0.08);
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.8s var(--ease) 0.8s, transform 0.8s var(--ease) 0.8s;
+    }
+    #strata.visible { opacity: 1; transform: translateY(0); }
+    .strata-bar { display: flex; align-items: center; gap: 20px; }
+    .strata-bar-line { height: 1px; background: var(--ink); opacity: 0.15; flex: 1; }
+    .strata-bar:nth-child(1) .strata-bar-line { max-width: 100%; }
+    .strata-bar:nth-child(2) .strata-bar-line { max-width: 72%; }
+    .strata-bar:nth-child(3) .strata-bar-line { max-width: 44%; }
+    .strata-label { font-size: 9px; letter-spacing: 0.3em; opacity: 0.3; white-space: nowrap; min-width: 80px; text-align: right; }
+
+    /* ─── FIGURE GRID ─────────────────────────────── */
+    #figure-grid {
+      padding: clamp(48px, 7vh, 96px) clamp(24px, 5vw, 64px);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+      gap: 2px;
+    }
+
+    .figure-card {
+      border: 1px solid rgba(20,18,16,0.10);
+      padding: clamp(28px, 4vw, 48px);
+      display: flex; flex-direction: column; gap: 16px;
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease),
+                  background 0.3s;
+    }
+    .figure-card.visible { opacity: 1; transform: translateY(0); }
+    .figure-card:hover { background: rgba(20,18,16,0.03); }
+
+    .figure-placeholder {
+      width: 100%; aspect-ratio: 1 / 1.2;
+      background: rgba(20,18,16,0.04);
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(20,18,16,0.07);
+      margin-bottom: 8px;
+    }
+    .figure-placeholder svg { opacity: 0.12; width: 40px; height: 40px; }
+
+    .figure-num { font-size: 9px; letter-spacing: 0.35em; opacity: 0.25; }
+    .figure-name { font-size: clamp(13px, 1.8vw, 17px); font-weight: 600; letter-spacing: 0.14em; }
+    .figure-desc { font-size: 11px; letter-spacing: 0.12em; line-height: 1.8; opacity: 0.5; flex: 1; }
+    .figure-meta {
+      font-size: 9px; letter-spacing: 0.3em; opacity: 0.28;
+      border-top: 1px solid rgba(20,18,16,0.10);
+      padding-top: 14px; margin-top: auto;
+    }
+
+    /* ─── PHILOSOPHY ──────────────────────────────── */
+    #philosophy {
+      padding: clamp(48px, 7vh, 96px) clamp(24px, 5vw, 64px);
+      border-top: 1px solid rgba(20,18,16,0.08);
+      max-width: 720px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.8s var(--ease) 1.1s, transform 0.8s var(--ease) 1.1s;
+    }
+    #philosophy.visible { opacity: 1; transform: translateY(0); }
+    #philosophy h2 { font-size: 10px; letter-spacing: 0.3em; opacity: 0.4; margin-bottom: 20px; }
+    #philosophy p {
+      font-size: clamp(12px, 1.6vw, 16px); letter-spacing: 0.12em;
+      line-height: 1.9; opacity: 0.6;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────── */
+    footer {
+      padding: clamp(32px, 5vh, 64px) clamp(24px, 5vw, 64px);
+      border-top: 1px solid rgba(20,18,16,0.08);
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    footer a {
+      font-size: 10px; letter-spacing: 0.22em;
+      color: var(--ink); text-decoration: none;
+      opacity: 0.35; transition: opacity 0.3s;
+    }
+    footer a:hover { opacity: 0.8; }
+    #principles-footer { font-size: 9px; letter-spacing: 0.3em; opacity: 0.18; }
+
+    @media (max-width: 600px) {
+      .strata-label { display: none; }
+      .strata-bar-line { max-width: 100% !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav id="top-nav">
+    <a href="index.html" id="nav-left" aria-label="VITRVS home">
+      <img src="VITRVS_mark.png" alt="VITRVS mark">
+      <span id="nav-brand">VITRVS</span>
+    </a>
+    <a href="index.html" id="back-link">
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="9,2 4,7 9,12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span id="back-label">BACK</span>
+    </a>
+    <div id="lang-switcher">
+      <button id="lang-btn" aria-haspopup="listbox" aria-expanded="false">EN</button>
+      <ul id="lang-dropdown" role="listbox">
+        <li role="option" data-lang="en">EN</li>
+        <li role="option" data-lang="de">DE</li>
+        <li role="option" data-lang="it">IT</li>
+        <li role="option" data-lang="fr">FR</li>
+        <li role="option" data-lang="hu">HU</li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div id="hero-eyebrow">VITRVS / 03</div>
+    <h1 id="hero-title">VITRVS<br>FIGURES</h1>
+    <div id="hero-rule"></div>
+    <p id="hero-sub"></p>
+  </section>
+
+  <!-- STRATA -->
+  <div id="strata">
+    <div class="strata-bar"><div class="strata-bar-line"></div><div class="strata-label">FIRMITAS</div></div>
+    <div class="strata-bar"><div class="strata-bar-line"></div><div class="strata-label">UTILITAS</div></div>
+    <div class="strata-bar"><div class="strata-bar-line"></div><div class="strata-label">VENUSTAS</div></div>
+  </div>
+
+  <!-- FIGURE GRID -->
+  <div id="figure-grid">
+    <div class="figure-card" style="transition-delay:0.9s">
+      <div class="figure-placeholder">
+        <!-- VITRVS mark icon placeholder -->
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="4,36 20,4 36,36" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="10" y1="36" x2="30" y2="36" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="13" y1="29" x2="27" y2="29" stroke="currentColor" stroke-width="1.0" stroke-linecap="round"/>
+          <line x1="16" y1="22" x2="24" y2="22" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="figure-num">01</div>
+      <div class="figure-name" data-key="fig1name">ARCHITECTUS</div>
+      <div class="figure-desc" data-key="fig1desc">Standing figure in classical repose. Rendered in near-black resin with a brushed matte finish. 18 cm tall.</div>
+      <div class="figure-meta" data-key="fig1meta">RESIN · 18 CM · LIMITED</div>
+    </div>
+    <div class="figure-card" style="transition-delay:1.0s">
+      <div class="figure-placeholder">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="4,36 20,4 36,36" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="10" y1="36" x2="30" y2="36" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="13" y1="29" x2="27" y2="29" stroke="currentColor" stroke-width="1.0" stroke-linecap="round"/>
+          <line x1="16" y1="22" x2="24" y2="22" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="figure-num">02</div>
+      <div class="figure-name" data-key="fig2name">GEOMETRA</div>
+      <div class="figure-desc" data-key="fig2desc">Abstract head study constructed from layered geometric planes. A meditation on proportion and the ideal form.</div>
+      <div class="figure-meta" data-key="fig2meta">RESIN · 12 CM · LIMITED</div>
+    </div>
+    <div class="figure-card" style="transition-delay:1.1s">
+      <div class="figure-placeholder">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="4,36 20,4 36,36" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="10" y1="36" x2="30" y2="36" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="13" y1="29" x2="27" y2="29" stroke="currentColor" stroke-width="1.0" stroke-linecap="round"/>
+          <line x1="16" y1="22" x2="24" y2="22" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="figure-num">03</div>
+      <div class="figure-name" data-key="fig3name">VIATOR</div>
+      <div class="figure-desc" data-key="fig3desc">A traveller mid-stride. Captured at the threshold of movement and stillness. Available in two colourways.</div>
+      <div class="figure-meta" data-key="fig3meta">RESIN · 22 CM · LIMITED</div>
+    </div>
+    <div class="figure-card" style="transition-delay:1.2s">
+      <div class="figure-placeholder">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="4,36 20,4 36,36" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="10" y1="36" x2="30" y2="36" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="13" y1="29" x2="27" y2="29" stroke="currentColor" stroke-width="1.0" stroke-linecap="round"/>
+          <line x1="16" y1="22" x2="24" y2="22" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="figure-num">04</div>
+      <div class="figure-name" data-key="fig4name">CUSTOS</div>
+      <div class="figure-desc" data-key="fig4desc">A guardian figure — dense, grounded, immovable. Designed to anchor a space. Heavyweight mineral composite.</div>
+      <div class="figure-meta" data-key="fig4meta">COMPOSITE · 14 CM · LIMITED</div>
+    </div>
+  </div>
+
+  <!-- PHILOSOPHY -->
+  <div id="philosophy">
+    <h2 id="phil-label">PHILOSOPHY</h2>
+    <p id="phil-body"></p>
+  </div>
+
+  <footer>
+    <a href="mailto:hello@vitrvs.design">hello@vitrvs.design</a>
+    <div id="principles-footer">FIRMITAS · UTILITAS · VENUSTAS</div>
+    <a href="https://instagram.com/vitrvs.design" target="_blank" rel="noopener">@vitrvs.design</a>
+  </footer>
+
+  <script>
+    const LANGS = {
+      en: {
+        label:'EN', back:'BACK',
+        heroSub: 'VITRVS Figures transforms illustrated worlds into sculptural objects.\n\nFrom comic collaborations to AI-generated explorations,\neach figure is interpreted through geometric refinement and spatial balance.\n\nThese are not replicas.\nThey are dimensional translations \u2014\nlayered, composed, and architecturally resolved.',
+        philLabel: 'PHILOSOPHY',
+        philBody: 'A figure is not a likeness — it is a proposition about the human form. We distil the body to its governing ratios, then build it back, layer by layer, until the object carries the weight of the original idea.',
+        figures: [
+          { name:'ARCHITECTUS', desc:'Standing figure in classical repose. Rendered in near-black resin with a brushed matte finish. 18 cm tall.', meta:'RESIN · 18 CM · LIMITED' },
+          { name:'GEOMETRA',    desc:'Abstract head study constructed from layered geometric planes. A meditation on proportion and the ideal form.', meta:'RESIN · 12 CM · LIMITED' },
+          { name:'VIATOR',      desc:'A traveller mid-stride. Captured at the threshold of movement and stillness. Available in two colourways.', meta:'RESIN · 22 CM · LIMITED' },
+          { name:'CUSTOS',      desc:'A guardian figure — dense, grounded, immovable. Designed to anchor a space. Heavyweight mineral composite.', meta:'COMPOSITE · 14 CM · LIMITED' },
+        ],
+      },
+      de: {
+        label:'DE', back:'ZURÜCK',
+        heroSub: 'VITRVS Figures verwandelt illustrierte Welten in skulpturale Objekte.\n\nVon Comic-Kollaborationen bis hin zu KI-generierten Erkundungen\nwird jede Figur durch geometrische Verfeinerung und r\u00e4umliche Balance interpretiert.\n\nDies sind keine Repliken.\nSie sind dimensionale \u00dcbersetzungen \u2014\ngeschichtet, komponiert und architektonisch aufgel\u00f6st.',
+        philLabel: 'PHILOSOPHIE',
+        philBody: 'Eine Figur ist kein Abbild — sie ist eine Aussage über die menschliche Form. Wir destillieren den Körper auf seine bestimmenden Verhältnisse und bauen ihn dann Schicht für Schicht wieder auf, bis das Objekt das Gewicht der ursprünglichen Idee trägt.',
+        figures: [
+          { name:'ARCHITECTUS', desc:'Stehende Figur in klassischer Ruhe. In nahezu schwarzem Harz gegossen, matt gebürstet. 18 cm groß.', meta:'HARZ · 18 CM · LIMITIERT' },
+          { name:'GEOMETRA',    desc:'Abstrakter Kopf aus geschichteten geometrischen Ebenen. Eine Meditation über Proportion und die ideale Form.', meta:'HARZ · 12 CM · LIMITIERT' },
+          { name:'VIATOR',      desc:'Ein Reisender mitten im Schritt. An der Schwelle zwischen Bewegung und Stille. In zwei Farbvarianten erhältlich.', meta:'HARZ · 22 CM · LIMITIERT' },
+          { name:'CUSTOS',      desc:'Eine Wächterfigur — dicht, geerdet, unbeweglich. Designed to anchor a space. Schweres Mineralkomposit.', meta:'KOMPOSIT · 14 CM · LIMITIERT' },
+        ],
+      },
+      it: {
+        label:'IT', back:'INDIETRO',
+        heroSub: 'VITRVS Figures trasforma mondi illustrati in oggetti scultorei.\n\nDalle collaborazioni fumettistiche alle esplorazioni generate dall\'IA,\nogni figura \u00e8 interpretata attraverso raffinamento geometrico ed equilibrio spaziale.\n\nNon sono repliche.\nSono traduzioni dimensionali \u2014\na strati, composte e architettonicamente risolte.',
+        philLabel: 'FILOSOFIA',
+        philBody: 'Una figura non è una somiglianza — è una proposizione sulla forma umana. Distilliamo il corpo ai suoi rapporti fondamentali, poi lo ricostruiamo strato per strato, finché l\'oggetto porta il peso dell\'idea originale.',
+        figures: [
+          { name:'ARCHITECTUS', desc:'Figura eretta in riposo classico. Resa in resina quasi nera con finitura opaca spazzolata. Alta 18 cm.', meta:'RESINA · 18 CM · LIMITATO' },
+          { name:'GEOMETRA',    desc:'Studio di testa astratto costruito da piani geometrici a strati. Una meditazione sulla proporzione e la forma ideale.', meta:'RESINA · 12 CM · LIMITATO' },
+          { name:'VIATOR',      desc:'Un viaggiatore a metà passo. Catturato sulla soglia tra movimento e immobilità. Disponibile in due varianti di colore.', meta:'RESINA · 22 CM · LIMITATO' },
+          { name:'CUSTOS',      desc:'Una figura guardiana — densa, radicata, inamovibile. Progettata per ancorare uno spazio. Composito minerale pesante.', meta:'COMPOSITO · 14 CM · LIMITATO' },
+        ],
+      },
+      fr: {
+        label:'FR', back:'RETOUR',
+        heroSub: 'VITRVS Figures transforme des mondes illustr\u00e9s en objets sculpturaux.\n\nDes collaborations de bandes dessin\u00e9es aux explorations g\u00e9n\u00e9r\u00e9es par IA,\nchaque figure est interpr\u00e9t\u00e9e \u00e0 travers un raffinement g\u00e9om\u00e9trique et un \u00e9quilibre spatial.\n\nCe ne sont pas des r\u00e9pliques.\nCe sont des traductions dimensionnelles \u2014\nsuperpos\u00e9es, compos\u00e9es et architecturalement r\u00e9solues.',
+        philLabel: 'PHILOSOPHIE',
+        philBody: 'Une figure n\'est pas une ressemblance — c\'est une proposition sur la forme humaine. Nous distillons le corps à ses rapports fondamentaux, puis nous le reconstruisons couche par couche, jusqu\'à ce que l\'objet porte le poids de l\'idée originale.',
+        figures: [
+          { name:'ARCHITECTUS', desc:'Figure debout en repos classique. Rendue en résine quasi noire avec une finition mate brossée. 18 cm de haut.', meta:'RÉSINE · 18 CM · LIMITÉ' },
+          { name:'GEOMETRA',    desc:'Étude de tête abstraite construite à partir de plans géométriques superposés. Une méditation sur la proportion et la forme idéale.', meta:'RÉSINE · 12 CM · LIMITÉ' },
+          { name:'VIATOR',      desc:'Un voyageur en plein pas. Capturé au seuil entre mouvement et immobilité. Disponible en deux coloris.', meta:'RÉSINE · 22 CM · LIMITÉ' },
+          { name:'CUSTOS',      desc:'Une figure gardienne — dense, ancrée, inamovible. Conçue pour ancrer un espace. Composite minéral lourd.', meta:'COMPOSITE · 14 CM · LIMITÉ' },
+        ],
+      },
+      hu: {
+        label:'HU', back:'VISSZA',
+        heroSub: 'A VITRVS Figures illusztr\u00e1lt vil\u00e1gokat alak\u00edt szobrászati t\u00e1rgyakká.\n\nK\u00e9pregény-együttmlkődésektől a mesterséges intelligencia \u00e1ltal generált kutat\u00e1sokig,\nminden figur\u00e1t geometriai finomítás \u00e9s térbeli egyensúly által értelmezünk.\n\nEzek nem m\u00e1solatok.\nDimenzi\u00f3s ford\u00edt\u00e1sok \u2014\nr\u00e9tegzett, komponált \u00e9s \u00e9p\u00edt\u00e9szetileg feloldott alkotások.',
+        philLabel: 'FILOZÓFIA',
+        philBody: 'A figura nem hasonlóság — hanem kijelentés az emberi formáról. A testet meghatározó arányaira redukáljuk, majd rétegről rétegre visszaépítjük, míg a tárgy magában hordja az eredeti idea súlyát.',
+        figures: [
+          { name:'ARCHITECTUS', desc:'Álló figura klasszikus nyugalomban. Közel-fekete gyantából öntve, csiszolt matt felülettel. Magassága 18 cm.', meta:'GYANTA · 18 CM · LIMITÁLT' },
+          { name:'GEOMETRA',    desc:'Elvont fejstudy rétegzett geometriai síkokból felépítve. Meditáció az arányról és az ideális formáról.', meta:'GYANTA · 12 CM · LIMITÁLT' },
+          { name:'VIATOR',      desc:'Vándor lépés közben. Mozgás és mozdulatlanság határán rögzítve. Két színváltozatban elérhető.', meta:'GYANTA · 22 CM · LIMITÁLT' },
+          { name:'CUSTOS',      desc:'Őrző figura — tömör, stabil, mozdíthatatlan. Egy tér lehorgonyzására tervezve. Nehéz ásványos kompozit.', meta:'KOMPOZIT · 14 CM · LIMITÁLT' },
+        ],
+      },
+    };
+
+    const COUNTRY_LANG = { HU:'hu', DE:'de', AT:'de', LI:'de', IT:'it', SM:'it', VA:'it', FR:'fr', MC:'fr' };
+
+    function browserLang() {
+      const code = (navigator.language || 'en').split('-')[0].toLowerCase();
+      return LANGS[code] ? code : 'en';
+    }
+
+    let currentLang = 'en', userChose = false;
+    function br(s) { return s.replace(/\n/g, '<br>'); }
+
+    function applyLang(code) {
+      const l = LANGS[code] || LANGS.en;
+      currentLang = code;
+      document.documentElement.lang = code;
+      document.getElementById('back-label').textContent = l.back;
+      document.getElementById('hero-sub').innerHTML = br(l.heroSub);
+      document.getElementById('phil-label').textContent = l.philLabel;
+      document.getElementById('phil-body').textContent  = l.philBody;
+      document.getElementById('lang-btn').textContent   = l.label + '\u00A0';
+      const cards = document.querySelectorAll('.figure-card');
+      cards.forEach((card, i) => {
+        if (l.figures[i]) {
+          card.querySelector('.figure-name').textContent = l.figures[i].name;
+          card.querySelector('.figure-desc').textContent = l.figures[i].desc;
+          card.querySelector('.figure-meta').textContent = l.figures[i].meta;
+        }
+      });
+      sessionStorage.setItem('vitrvs_lang', code);
+      document.querySelectorAll('#lang-dropdown li').forEach(li =>
+        li.classList.toggle('active', li.dataset.lang === code));
+    }
+
+    function detectByIP() {
+      if (userChose) return;
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 3000);
+      fetch('https://ipapi.co/json/', { signal: ctrl.signal })
+        .then(r => r.json()).then(data => {
+          if (userChose) return;
+          const lang = COUNTRY_LANG[data.country_code] || 'en';
+          if (lang !== currentLang) applyLang(lang);
+        }).catch(() => {});
+    }
+
+    const _savedLang = sessionStorage.getItem('vitrvs_lang');
+    applyLang(_savedLang || browserLang());
+    if (!_savedLang) detectByIP();
+
+    const switcher = document.getElementById('lang-switcher');
+    const langBtn  = document.getElementById('lang-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
+
+    langBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      switcher.classList.toggle('open');
+      langBtn.setAttribute('aria-expanded', switcher.classList.contains('open'));
+    });
+    langDropdown.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', e => {
+        e.stopPropagation(); userChose = true;
+        applyLang(li.dataset.lang);
+        switcher.classList.remove('open');
+        langBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', () => {
+      switcher.classList.remove('open');
+      langBtn.setAttribute('aria-expanded', 'false');
+    });
+
+    window.addEventListener('load', () => {
+      requestAnimationFrame(() => {
+        ['top-nav','hero-eyebrow','hero-title','hero-rule','hero-sub','strata','philosophy']
+          .forEach(id => document.getElementById(id).classList.add('visible'));
+        document.querySelectorAll('.figure-card').forEach((card, i) => {
+          setTimeout(() => card.classList.add('visible'), 900 + i * 100);
+        });
+      });
+    });
+
+    const navLeft = document.getElementById('nav-left');
+    if (navLeft) navLeft.addEventListener('click', () => {
+      sessionStorage.removeItem('vitrvs_nav_to_sub');
+    });
+  </script>
+
+</body>
+</html>

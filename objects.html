@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VITRVS OBJECTS — strato/strato</title>
+  <meta name="description" content="VITRVS OBJECTS — limited objects shaped by proportion.">
+
+  <style>
+    @font-face {
+      font-family: 'Cinzel';
+      src: url('Cinzel-VariableFont_wght.ttf') format('truetype');
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ink:   #141210;
+      --paper: #EFECEA;
+      --ease:  cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ─── TOP NAV ─────────────────────────────────── */
+    #top-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(24px, 5vw, 64px);
+      background: var(--paper);
+      border-bottom: 1px solid rgba(20,18,16,0.10);
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    #top-nav.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #nav-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    #nav-left img {
+      width: 28px;
+      opacity: 0.85;
+    }
+    #nav-brand {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      opacity: 0.85;
+    }
+
+    #back-link {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      color: var(--ink);
+      text-decoration: none;
+      opacity: 0.45;
+      transition: opacity 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #back-link:hover { opacity: 0.85; }
+    #back-link svg {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ─── LANG SWITCHER ───────────────────────────── */
+    #lang-switcher {
+      position: relative;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+    }
+    #lang-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      color: var(--ink);
+      opacity: 0.5;
+      transition: opacity 0.3s;
+      padding: 4px 0;
+    }
+    #lang-btn:hover { opacity: 0.9; }
+    #lang-btn::after {
+      content: '';
+      display: inline-block;
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid currentColor;
+      margin-left: 6px;
+      vertical-align: middle;
+      opacity: 0.5;
+    }
+    #lang-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--paper);
+      border: 1px solid rgba(20,18,16,0.15);
+      list-style: none;
+      min-width: 64px;
+    }
+    #lang-switcher.open #lang-dropdown { display: block; }
+    #lang-dropdown li {
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    #lang-dropdown li:hover,
+    #lang-dropdown li.active { opacity: 1; }
+
+    /* ─── HERO ────────────────────────────────────── */
+    #hero {
+      padding-top: 64px; /* nav height */
+      min-height: 52vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-left: clamp(24px, 5vw, 64px);
+      padding-right: clamp(24px, 5vw, 64px);
+      padding-bottom: clamp(40px, 6vh, 72px);
+      border-bottom: 1px solid rgba(20,18,16,0.08);
+    }
+
+    #hero-eyebrow {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      opacity: 0.4;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.8s var(--ease) 0.15s, transform 0.8s var(--ease) 0.15s;
+    }
+    #hero-eyebrow.visible { opacity: 0.4; transform: translateY(0); }
+
+    #hero-title {
+      font-size: clamp(36px, 7vw, 88px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.9s var(--ease) 0.25s, transform 0.9s var(--ease) 0.25s;
+    }
+    #hero-title.visible { opacity: 1; transform: translateY(0); }
+
+    #hero-rule {
+      width: 0;
+      height: 1px;
+      background: var(--ink);
+      opacity: 0.18;
+      margin-top: 32px;
+      transition: width 1.2s var(--ease) 0.5s;
+    }
+    #hero-rule.visible { width: min(480px, 60vw); }
+
+    #hero-sub {
+      margin-top: 22px;
+      font-size: clamp(11px, 1.4vw, 14px);
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      line-height: 1.9;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.8s var(--ease) 0.6s, transform 0.8s var(--ease) 0.6s;
+      max-width: 520px;
+    }
+    #hero-sub.visible { opacity: 0.65; transform: translateY(0); }
+
+    /* ─── STRATA BARS (decorative) ──────────────────── */
+    #strata {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: clamp(40px, 6vh, 72px) clamp(24px, 5vw, 64px);
+      border-bottom: 1px solid rgba(20,18,16,0.08);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s var(--ease) 0.8s, transform 0.8s var(--ease) 0.8s;
+    }
+    #strata.visible { opacity: 1; transform: translateY(0); }
+    .strata-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .strata-bar-line {
+      height: 1px;
+      background: var(--ink);
+      opacity: 0.15;
+      flex: 1;
+    }
+    .strata-bar:nth-child(1) .strata-bar-line { max-width: 100%; }
+    .strata-bar:nth-child(2) .strata-bar-line { max-width: 72%; }
+    .strata-bar:nth-child(3) .strata-bar-line { max-width: 44%; }
+    .strata-label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      opacity: 0.3;
+      white-space: nowrap;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    /* ─── CONTENT GRID ────────────────────────────── */
+    #content-grid {
+      padding: clamp(48px, 7vh, 96px) clamp(24px, 5vw, 64px);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+      gap: 2px;
+    }
+
+    .item-card {
+      background: var(--paper);
+      border: 1px solid rgba(20,18,16,0.10);
+      padding: clamp(28px, 4vw, 48px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease),
+                  background 0.3s, border-color 0.3s;
+      cursor: default;
+    }
+    .item-card.visible { opacity: 1; transform: translateY(0); }
+    .item-card:hover { background: rgba(20,18,16,0.03); }
+
+    .item-num {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      opacity: 0.3;
+    }
+    .item-name {
+      font-size: clamp(15px, 2.2vw, 20px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      line-height: 1.3;
+    }
+    .item-desc {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      line-height: 1.8;
+      opacity: 0.55;
+      flex: 1;
+    }
+    .item-tag {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      opacity: 0.3;
+      border-top: 1px solid rgba(20,18,16,0.10);
+      padding-top: 16px;
+    }
+
+    /* ─── COMING SOON OVERLAY ─────────────────────── */
+    #coming-soon {
+      padding: clamp(48px, 7vh, 96px) clamp(24px, 5vw, 64px);
+      border-top: 1px solid rgba(20,18,16,0.08);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s var(--ease) 1.0s, transform 0.8s var(--ease) 1.0s;
+    }
+    #coming-soon.visible { opacity: 1; transform: translateY(0); }
+    #coming-soon p {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      opacity: 0.35;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────── */
+    footer {
+      padding: clamp(32px, 5vh, 64px) clamp(24px, 5vw, 64px);
+      border-top: 1px solid rgba(20,18,16,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    footer a {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      color: var(--ink);
+      text-decoration: none;
+      opacity: 0.35;
+      transition: opacity 0.3s;
+    }
+    footer a:hover { opacity: 0.8; }
+    #principles-footer {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      opacity: 0.18;
+    }
+
+    /* ─── RESPONSIVE ──────────────────────────────── */
+    @media (max-width: 600px) {
+      .strata-label { display: none; }
+      .strata-bar-line { max-width: 100% !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav id="top-nav">
+    <a href="index.html" id="nav-left" aria-label="VITRVS home">
+      <img src="VITRVS_mark.png" alt="VITRVS mark">
+      <span id="nav-brand">VITRVS</span>
+    </a>
+    <a href="index.html" id="back-link">
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="9,2 4,7 9,12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span id="back-label">BACK</span>
+    </a>
+    <div id="lang-switcher">
+      <button id="lang-btn" aria-haspopup="listbox" aria-expanded="false">EN</button>
+      <ul id="lang-dropdown" role="listbox">
+        <li role="option" data-lang="en">EN</li>
+        <li role="option" data-lang="de">DE</li>
+        <li role="option" data-lang="it">IT</li>
+        <li role="option" data-lang="fr">FR</li>
+        <li role="option" data-lang="hu">HU</li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div id="hero-eyebrow">VITRVS / 01</div>
+    <h1 id="hero-title">VITRVS<br>OBJECTS</h1>
+    <div id="hero-rule"></div>
+    <p id="hero-sub"></p>
+  </section>
+
+  <!-- DECORATIVE STRATA -->
+  <div id="strata">
+    <div class="strata-bar">
+      <div class="strata-bar-line"></div>
+      <div class="strata-label">FIRMITAS</div>
+    </div>
+    <div class="strata-bar">
+      <div class="strata-bar-line"></div>
+      <div class="strata-label">UTILITAS</div>
+    </div>
+    <div class="strata-bar">
+      <div class="strata-bar-line"></div>
+      <div class="strata-label">VENUSTAS</div>
+    </div>
+  </div>
+
+  <!-- ITEM GRID -->
+  <div id="content-grid">
+    <div class="item-card" style="transition-delay:0.9s">
+      <div class="item-num">01</div>
+      <div class="item-name" data-key="item1name">PROPORTION VESSEL</div>
+      <div class="item-desc" data-key="item1desc">A vase derived from the golden section. Cast in mineral-filled resin, matte finish. Limited to 12 pieces per run.</div>
+      <div class="item-tag" data-key="item1tag">LIMITED · 12 PCS</div>
+    </div>
+    <div class="item-card" style="transition-delay:1.0s">
+      <div class="item-num">02</div>
+      <div class="item-name" data-key="item2name">COLUMN CANDLEHOLDER</div>
+      <div class="item-desc" data-key="item2desc">Three graduated cylinders referencing the classical order — Doric, Ionic, Corinthian — rendered in monolithic black.</div>
+      <div class="item-tag" data-key="item2tag">LIMITED · 20 PCS</div>
+    </div>
+    <div class="item-card" style="transition-delay:1.1s">
+      <div class="item-num">03</div>
+      <div class="item-name" data-key="item3name">STRATO TRAY</div>
+      <div class="item-desc" data-key="item3desc">Layered horizontal geometry — three depths, one surface. Functional object for the considered desk or shelf.</div>
+      <div class="item-tag" data-key="item3tag">LIMITED · 30 PCS</div>
+    </div>
+    <div class="item-card" style="transition-delay:1.2s">
+      <div class="item-num">04</div>
+      <div class="item-name" data-key="item4name">ARCH BOOKEND</div>
+      <div class="item-desc" data-key="item4desc">A minimal interpretation of the Roman arch. Solid, structural, silent. Sold as a pair.</div>
+      <div class="item-tag" data-key="item4tag">LIMITED · 24 PCS</div>
+    </div>
+  </div>
+
+  <div id="coming-soon">
+    <p id="coming-soon-text">NEW PIECES — COMING SOON</p>
+  </div>
+
+  <footer>
+    <a href="mailto:hello@vitrvs.design">hello@vitrvs.design</a>
+    <div id="principles-footer">FIRMITAS · UTILITAS · VENUSTAS</div>
+    <a href="https://instagram.com/vitrvs.design" target="_blank" rel="noopener">@vitrvs.design</a>
+  </footer>
+
+  <script>
+    /* ═══════════════════════════════════════════════════════
+       LOCALISATION
+       ═══════════════════════════════════════════════════════ */
+    const LANGS = {
+      en: {
+        label: 'EN',
+        back: 'BACK',
+        heroSub: 'VITRVS Objects is our core collection of functional and decorative pieces.\nEach object is designed with structural clarity, material restraint, and architectural balance.\n\nRooted in the Vitruvian triad \u2014 firmitas, utilitas, venustas \u2014\nthese works are made to live quietly within contemporary interiors.\n\nThey are not ornaments.\nThey are composed presences.',
+        comingSoon: 'NEW PIECES — COMING SOON',
+        items: [
+          { name: 'PROPORTION VESSEL', desc: 'A vase derived from the golden section. Cast in mineral-filled resin, matte finish. Limited to 12 pieces per run.', tag: 'LIMITED · 12 PCS' },
+          { name: 'COLUMN CANDLEHOLDER', desc: 'Three graduated cylinders referencing the classical order — Doric, Ionic, Corinthian — rendered in monolithic black.', tag: 'LIMITED · 20 PCS' },
+          { name: 'STRATO TRAY', desc: 'Layered horizontal geometry — three depths, one surface. Functional object for the considered desk or shelf.', tag: 'LIMITED · 30 PCS' },
+          { name: 'ARCH BOOKEND', desc: 'A minimal interpretation of the Roman arch. Solid, structural, silent. Sold as a pair.', tag: 'LIMITED · 24 PCS' },
+        ],
+      },
+      de: {
+        label: 'DE',
+        back: 'ZURÜCK',
+        heroSub: 'VITRVS Objects ist unsere Kernkollektion funktionaler und dekorativer Objekte.\nJedes St\u00fcck ist mit struktureller Klarheit, materieller Zur\u00fcckhaltung und architektonischer Balance gestaltet.\n\nVerwurzelt in der vitruvianischen Triade \u2014 firmitas, utilitas, venustas \u2014\nsind diese Werke dazu gemacht, ruhig in zeitgen\u00f6ssischen Interieurs zu wohnen.\n\nSie sind keine Ornamente.\nSie sind komponierte Pr\u00e4senzen.',
+        comingSoon: 'NEUE STÜCKE — DEMNÄCHST',
+        items: [
+          { name: 'PROPORTION VESSEL', desc: 'Eine Vase abgeleitet vom goldenen Schnitt. In mineralisch gefülltem Harz gegossen, Mattfinish. Limitiert auf 12 Stück pro Auflage.', tag: 'LIMITIERT · 12 STK.' },
+          { name: 'COLUMN CANDLEHOLDER', desc: 'Drei abgestufte Zylinder, die die klassische Ordnung referenzieren — Dorisch, Ionisch, Korinthisch — in monolithischem Schwarz.', tag: 'LIMITIERT · 20 STK.' },
+          { name: 'STRATO TRAY', desc: 'Geschichtete horizontale Geometrie — drei Tiefen, eine Fläche. Funktionales Objekt für den bewussten Schreibtisch.', tag: 'LIMITIERT · 30 STK.' },
+          { name: 'ARCH BOOKEND', desc: 'Eine minimale Interpretation des römischen Bogens. Massiv, strukturell, still. Als Paar erhältlich.', tag: 'LIMITIERT · 24 STK.' },
+        ],
+      },
+      it: {
+        label: 'IT',
+        back: 'INDIETRO',
+        heroSub: 'VITRVS Objects \u00e8 la nostra collezione principale di pezzi funzionali e decorativi.\nOgni oggetto \u00e8 progettato con chiarezza strutturale, misura materiale ed equilibrio architettonico.\n\nRadicati nella triade vitruviana \u2014 firmitas, utilitas, venustas \u2014\nqueste opere sono fatte per vivere silenziosamente negli interni contemporanei.\n\nNon sono ornamenti.\nSono presenze composte.',
+        comingSoon: 'NUOVI PEZZI — PROSSIMAMENTE',
+        items: [
+          { name: 'PROPORTION VESSEL', desc: 'Un vaso derivato dalla sezione aurea. Colato in resina caricata a minerali, finitura opaca. Limitato a 12 pezzi per tiratura.', tag: 'LIMITATO · 12 PZ.' },
+          { name: 'COLUMN CANDLEHOLDER', desc: 'Tre cilindri graduati che richiamano l\'ordine classico — Dorico, Ionico, Corinzio — in nero monolitico.', tag: 'LIMITATO · 20 PZ.' },
+          { name: 'STRATO TRAY', desc: 'Geometria orizzontale a strati — tre profondità, una superficie. Oggetto funzionale per la scrivania o lo scaffale.', tag: 'LIMITATO · 30 PZ.' },
+          { name: 'ARCH BOOKEND', desc: 'Un\'interpretazione minimale dell\'arco romano. Solido, strutturale, silenzioso. Venduto in coppia.', tag: 'LIMITATO · 24 PZ.' },
+        ],
+      },
+      fr: {
+        label: 'FR',
+        back: 'RETOUR',
+        heroSub: 'VITRVS Objects est notre collection principale de pi\u00e8ces fonctionnelles et d\u00e9coratives.\nChaque objet est con\u00e7u avec clart\u00e9 structurelle, retenue mat\u00e9rielle et \u00e9quilibre architectural.\n\nAncr\u00e9s dans la triade vitruvienne \u2014 firmitas, utilitas, venustas \u2014\nces \u0153uvres sont faites pour vivre discr\u00e8tement dans les int\u00e9rieurs contemporains.\n\nIls ne sont pas des ornements.\nIls sont des pr\u00e9sences compos\u00e9es.',
+        comingSoon: 'NOUVELLES PIÈCES — BIENTÔT',
+        items: [
+          { name: 'PROPORTION VESSEL', desc: 'Un vase dérivé de la section dorée. Coulé en résine chargée de minéraux, finition mate. Limité à 12 exemplaires par tirage.', tag: 'LIMITÉ · 12 PCS' },
+          { name: 'COLUMN CANDLEHOLDER', desc: 'Trois cylindres gradués référençant l\'ordre classique — Dorique, Ionique, Corinthien — en noir monolithique.', tag: 'LIMITÉ · 20 PCS' },
+          { name: 'STRATO TRAY', desc: 'Géométrie horizontale en couches — trois profondeurs, une surface. Objet fonctionnel pour le bureau ou l\'étagère.', tag: 'LIMITÉ · 30 PCS' },
+          { name: 'ARCH BOOKEND', desc: 'Une interprétation minimale de l\'arc romain. Solide, structurel, silencieux. Vendu par paire.', tag: 'LIMITÉ · 24 PCS' },
+        ],
+      },
+      hu: {
+        label: 'HU',
+        back: 'VISSZA',
+        heroSub: 'A VITRVS Objects funkcion\u00e1lis \u00e9s dekorat\u00edv t\u00e1rgyak alap-koll ekci\u00f3nk.\nMinden t\u00e1rgyat strukturális tisztas\u00e1ggal, anyagi visszafogotts\u00e1ggal \u00e9s \u00e9p\u00edt\u00e9szeti egyens\u00faly elvei alapj\u00e1n tervezz\u00fck.\n\nA vitruviusi h\u00e1rmas gy\u00f6ker\u00e9n \u00e1llva \u2014 firmitas, utilitas, venustas \u2014\nezek a t\u00e1rgyak kortárs enti rőrökben csendes jelenlétként élnek.\n\nNem d\u00edsz\u00edt\u00e9sek.\nKomponált jelenl\u00e9tek.',
+        comingSoon: 'ÚJ TÁRGYAK — HAMAROSAN',
+        items: [
+          { name: 'PROPORTION VESSEL', desc: 'Váza az arany arányból levezetett formával. Ásványos töltésű gyantából öntve, matt felülettel. Darabszám: 12 db sorozatonként.', tag: 'LIMITÁLT · 12 DB' },
+          { name: 'COLUMN CANDLEHOLDER', desc: 'Három fokozatosan karcsúsodó henger — a klasszikus rend alapján: dór, ión, korinthoszi — monolitikus feketében.', tag: 'LIMITÁLT · 20 DB' },
+          { name: 'STRATO TRAY', desc: 'Vízszintes réteggeometria — három mélység, egy felület. Funkcionális tárgy az átgondolt íróasztalra vagy polcra.', tag: 'LIMITÁLT · 30 DB' },
+          { name: 'ARCH BOOKEND', desc: 'A római ív minimál értelmezése. Tömör, szerkezeti, csendes. Párban kapható.', tag: 'LIMITÁLT · 24 DB' },
+        ],
+      },
+    };
+
+    const COUNTRY_LANG = {
+      HU:'hu', DE:'de', AT:'de', LI:'de',
+      IT:'it', SM:'it', VA:'it',
+      FR:'fr', MC:'fr',
+    };
+
+    function browserLang() {
+      const code = (navigator.language || 'en').split('-')[0].toLowerCase();
+      return LANGS[code] ? code : 'en';
+    }
+
+    let currentLang = 'en';
+    let userChose = false;
+
+    function br(s) { return s.replace(/\n/g, '<br>'); }
+
+    function applyLang(code) {
+      const l = LANGS[code] || LANGS.en;
+      currentLang = code;
+      document.documentElement.lang = code;
+      document.getElementById('back-label').textContent = l.back;
+      document.getElementById('hero-sub').innerHTML = br(l.heroSub);
+      document.getElementById('coming-soon-text').textContent = l.comingSoon;
+      document.getElementById('lang-btn').textContent = l.label + '\u00A0';
+      // Items
+      const cards = document.querySelectorAll('.item-card');
+      cards.forEach((card, i) => {
+        if (l.items[i]) {
+          card.querySelector('.item-name').textContent = l.items[i].name;
+          card.querySelector('.item-desc').textContent = l.items[i].desc;
+          card.querySelector('.item-tag').textContent  = l.items[i].tag;
+        }
+      });
+      sessionStorage.setItem('vitrvs_lang', code);
+      document.querySelectorAll('#lang-dropdown li').forEach(li => {
+        li.classList.toggle('active', li.dataset.lang === code);
+      });
+    }
+
+    function detectByIP() {
+      if (userChose) return;
+      const ctrl = new AbortController();
+      const timeout = setTimeout(() => ctrl.abort(), 3000);
+      fetch('https://ipapi.co/json/', { signal: ctrl.signal })
+        .then(r => r.json())
+        .then(data => {
+          clearTimeout(timeout);
+          if (userChose) return;
+          const lang = COUNTRY_LANG[data.country_code] || 'en';
+          if (lang !== currentLang) applyLang(lang);
+        })
+        .catch(() => {});
+    }
+
+    const _savedLang = sessionStorage.getItem('vitrvs_lang');
+    applyLang(_savedLang || browserLang());
+    if (!_savedLang) detectByIP();
+
+    /* ─── LANG DROPDOWN ───────────────────────────── */
+    const switcher    = document.getElementById('lang-switcher');
+    const langBtn     = document.getElementById('lang-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
+
+    langBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      switcher.classList.toggle('open');
+      langBtn.setAttribute('aria-expanded', switcher.classList.contains('open'));
+    });
+    langDropdown.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', e => {
+        e.stopPropagation();
+        userChose = true;
+        applyLang(li.dataset.lang);
+        switcher.classList.remove('open');
+        langBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', () => {
+      switcher.classList.remove('open');
+      langBtn.setAttribute('aria-expanded', 'false');
+    });
+
+    /* ─── ENTRANCE ANIMATION ──────────────────────── */
+    window.addEventListener('load', () => {
+      requestAnimationFrame(() => {
+        document.getElementById('top-nav').classList.add('visible');
+        document.getElementById('hero-eyebrow').classList.add('visible');
+        document.getElementById('hero-title').classList.add('visible');
+        document.getElementById('hero-rule').classList.add('visible');
+        document.getElementById('hero-sub').classList.add('visible');
+        document.getElementById('strata').classList.add('visible');
+        document.getElementById('coming-soon').classList.add('visible');
+
+        // Stagger cards
+        document.querySelectorAll('.item-card').forEach((card, i) => {
+          setTimeout(() => card.classList.add('visible'), 900 + i * 100);
+        });
+      });
+    });
+
+    /* Ha a látogató logóra vagy back linkre kattint (nem back gomb),
+       töröljük a visszanavigációs flag-et, hogy a főoldal az elejéről induljon */
+    /* Logóra kattintva töröljük a back-flag-et → főoldal tetejéről indul
+       A back gomb megtartja a flag-et → főoldal paneles nézetére ugrik */
+    const navLeft = document.getElementById('nav-left');
+    if (navLeft) navLeft.addEventListener('click', () => {
+      sessionStorage.removeItem('vitrvs_nav_to_sub');
+    });
+  </script>
+
+</body>
+</html>
